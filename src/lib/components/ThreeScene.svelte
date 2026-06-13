@@ -9,9 +9,19 @@
 		/** Zoom-in amount, 0 (framed) → 1 (pushed in close, device overflows). */
 		zoom?: number;
 		modelUrl?: string;
+		/** Emits the screens' + whole device's projected rects (fractions of canvas) each frame. */
+		onScreens?: (r: { top: Rect; bottom: Rect; device: Rect }) => void;
 	}
 
-	let { open = 0, reveal = 1, zoom = 0, modelUrl = '/models/3ds.glb' }: Props = $props();
+	interface Rect {
+		x: number;
+		y: number;
+		w: number;
+		h: number;
+	}
+
+	let { open = 0, reveal = 1, zoom = 0, modelUrl = '/models/3ds.glb', onScreens }: Props =
+		$props();
 
 	let host: HTMLDivElement;
 	let loaded = $state(false);
@@ -95,6 +105,9 @@
 				// We drive it manually because the GLB's clip doesn't move it.
 				const lid = root.getObjectByName('Top004');
 
+				const topScreen = root.getObjectByName('Top_Screen002');
+				const bottomScreen = root.getObjectByName('Bottom_Screen002');
+
 				// Frame for the flat (fully open) pose — its widest footprint — so the
 				// camera never clips it in any state.
 				if (lid) lid.rotation.x = 0;
@@ -140,6 +153,30 @@
 				);
 				io.observe(host);
 
+				const _box = new THREE.Box3();
+				const _v = new THREE.Vector3();
+				function projectRect(obj: import('three').Object3D): Rect {
+					_box.setFromObject(obj);
+					let minX = Infinity,
+						minY = Infinity,
+						maxX = -Infinity,
+						maxY = -Infinity;
+					for (let i = 0; i < 8; i++) {
+						_v.set(
+							i & 1 ? _box.max.x : _box.min.x,
+							i & 2 ? _box.max.y : _box.min.y,
+							i & 4 ? _box.max.z : _box.min.z
+						).project(camera);
+						const sx = _v.x * 0.5 + 0.5;
+						const sy = 1 - (_v.y * 0.5 + 0.5);
+						minX = Math.min(minX, sx);
+						maxX = Math.max(maxX, sx);
+						minY = Math.min(minY, sy);
+						maxY = Math.max(maxY, sy);
+					}
+					return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+				}
+
 				const clock = new THREE.Clock();
 				let curOpen = 0;
 				let curZoom = 0;
@@ -170,6 +207,13 @@
 					camera.position.z = baseDist * (1 - 0.55 * curZoom);
 
 					renderer.render(scene, camera);
+
+					if (onScreens && topScreen && bottomScreen)
+						onScreens({
+							top: projectRect(topScreen),
+							bottom: projectRect(bottomScreen),
+							device: projectRect(root)
+						});
 				}
 				function start() {
 					if (!raf) {

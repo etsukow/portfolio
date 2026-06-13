@@ -3,6 +3,7 @@
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 	import ThreeScene from './ThreeScene.svelte';
+	import DeviceImage from './DeviceImage.svelte';
 	import ConsoleShell from './ConsoleShell.svelte';
 	import { getLenis } from '$lib/scroll/smooth';
 
@@ -10,7 +11,7 @@
 	let stageEl = $state<HTMLElement>();
 	let osEl = $state<HTMLElement>();
 
-	let showIntro = $state(true);
+	let mode = $state<'pending' | '3d' | 'flat'>('pending'); // flat = CSS shell (mobile/reduced)
 	let entered = $state(false);
 	let progress = $state(0);
 
@@ -26,7 +27,6 @@
 		entered = true;
 		getLenis()?.stop();
 		await tick();
-		// move focus into the device for keyboard users
 		osEl?.querySelector<HTMLElement>('.apps')?.focus();
 	}
 
@@ -34,7 +34,7 @@
 		entered = false;
 		const lenis = getLenis();
 		lenis?.start();
-		lenis ? lenis.scrollTo(0, { immediate: false, duration: 0.8 }) : window.scrollTo(0, 0);
+		lenis ? lenis.scrollTo(0, { duration: 0.8 }) : window.scrollTo(0, 0);
 	}
 
 	function start() {
@@ -50,12 +50,15 @@
 
 	onMount(() => {
 		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		if (reduce) {
-			showIntro = false;
+		const small = window.matchMedia('(max-width: 759px)').matches;
+
+		if (reduce || small) {
+			mode = 'flat';
 			entered = true;
 			return;
 		}
 
+		mode = '3d';
 		gsap.registerPlugin(ScrollTrigger);
 		const st = ScrollTrigger.create({
 			trigger: introEl!,
@@ -68,7 +71,6 @@
 				progress = self.progress;
 				if (self.progress > 0.9) enter();
 				else if (self.progress < 0.85 && entered) {
-					// scrolled back up out of the device
 					entered = false;
 					getLenis()?.start();
 				}
@@ -84,7 +86,7 @@
 	});
 </script>
 
-{#if showIntro}
+{#if mode === '3d'}
 	<section bind:this={introEl} class="intro">
 		<div bind:this={stageEl} class="stage">
 			<div class="canvas" aria-hidden="true">
@@ -103,10 +105,14 @@
 	</section>
 {/if}
 
-<div bind:this={osEl} class="os" class:entered>
-	<ConsoleShell />
-	{#if entered}
-		<button class="power" onclick={exit} aria-label="Back to start">⏻ exit</button>
+<div bind:this={osEl} class="os" class:entered class:instant={mode === 'flat'}>
+	{#if mode === 'flat'}
+		<ConsoleShell />
+	{:else}
+		<DeviceImage />
+		{#if entered}
+			<button class="power" onclick={exit} aria-label="Back to start">⏻ exit</button>
+		{/if}
 	{/if}
 </div>
 
@@ -167,6 +173,11 @@
 		opacity: 1;
 		visibility: visible;
 	}
+	.os.instant {
+		opacity: 1;
+		visibility: visible;
+		transition: none;
+	}
 
 	.power {
 		position: fixed;
@@ -191,7 +202,6 @@
 			opacity: 0.4;
 		}
 	}
-
 	@media (prefers-reduced-motion: reduce) {
 		.start .ps {
 			animation: none;
