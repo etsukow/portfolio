@@ -108,15 +108,15 @@
 				const topScreen = root.getObjectByName('Top_Screen002');
 				const bottomScreen = root.getObjectByName('Bottom_Screen002');
 
-				// Frame for the open, face-on pose (lid flat + tilted up to the camera) —
-				// the largest on-screen silhouette — so nothing clips in any state.
+				// Measure the open, face-on pose (lid flat + tilted up) — the largest
+				// on-screen silhouette — and frame by its actual width/height (not a
+				// bounding sphere, which would leave the rectangular device too small).
 				if (lid) lid.rotation.x = 0;
 				model.rotation.x = Math.PI / 2;
 				model.updateMatrixWorld(true);
-				const fitRadius = new THREE.Box3()
-					.setFromObject(model)
-					.getBoundingSphere(new THREE.Sphere())
-					.radius;
+				const _fs = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
+				const fitW = _fs.x;
+				const fitH = _fs.y;
 				model.rotation.x = 0;
 
 				const LID_CLOSED = Math.PI; // 180° = clamshell shut
@@ -130,11 +130,13 @@
 					const h = host.clientHeight || 1;
 					renderer.setSize(w, h, false);
 					camera.aspect = w / h;
-					// Distance that fits the bounding sphere within the *tighter* of the
-					// vertical / horizontal FOV, plus a small margin.
-					const vFov = (camera.fov * Math.PI) / 180;
-					const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-					baseDist = (fitRadius * 1.06) / Math.sin(Math.min(vFov, hFov) / 2);
+					// Distance so the device's width AND height fit the canvas (+ small margin).
+					const halfTan = Math.tan((camera.fov * Math.PI) / 180 / 2);
+					const dH = fitH / 2 / halfTan;
+					const dW = fitW / 2 / (halfTan * camera.aspect);
+					// base is intentionally roomy so the scroll zoom-in has somewhere to go;
+					// by the hand-off the device has grown to ~fill (matching the OS size).
+					baseDist = Math.max(dH, dW) * 1.5;
 					camera.position.set(0, 0, baseDist);
 					camera.lookAt(0, 0, 0);
 					camera.updateProjectionMatrix();
@@ -215,8 +217,8 @@
 					_box.setFromObject(model).getCenter(_v);
 					model.position.set(-_v.x, baseY - _v.y + bob, -_v.z);
 
-					// keep the push-in within the fit margin so it never clips the edges
-					camera.position.z = baseDist * (1 - 0.05 * curZoom);
+					// scroll zoom-in: pushes from the roomy base toward filling the frame
+					camera.position.z = baseDist * (1 - 0.4 * curZoom);
 
 					renderer.render(scene, camera);
 
