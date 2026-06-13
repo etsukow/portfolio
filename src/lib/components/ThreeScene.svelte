@@ -95,15 +95,17 @@
 				// We drive it manually because the GLB's clip doesn't move it.
 				const lid = root.getObjectByName('Top004');
 
-				// Rotation-invariant bounding sphere → used to frame the camera so the
-				// model always fits the canvas (whatever the aspect) and never clips.
+				// Frame for the flat (fully open) pose — its widest footprint — so the
+				// camera never clips it in any state.
+				if (lid) lid.rotation.x = 0;
 				const fitRadius = new THREE.Box3()
 					.setFromObject(model)
 					.getBoundingSphere(new THREE.Sphere())
 					.radius;
 
-				const LID_CLOSED = Math.PI; // 180° = clamshell shut (flat)
-				const LID_OPEN = Math.PI / 2; // 90° = open, both screens facing front
+				const LID_CLOSED = Math.PI; // 180° = clamshell shut
+				const LID_OPEN = 0; // 0° = laid fully flat (horizontal, both screens coplanar)
+				const OPEN_PITCH = Math.PI / 2; // tilt the flat device up to face the camera (screens toward viewer)
 				const BASE_YAW = -0.4;
 				let baseDist = 5;
 
@@ -157,12 +159,13 @@
 					curZoom += (zoomTarget - curZoom) * k;
 					swayT += dt;
 
-					// lid: closed (180°, flat) → open (90°, perpendicular)
+					// lid: closed (180°, clamshell) → open (0°, flat/horizontal)
 					if (lid) lid.rotation.x = LID_CLOSED + curOpen * (LID_OPEN - LID_CLOSED);
 
-					// gentle sway that settles to dead-front as it opens — never a full spin
+					// gentle sway when closed; settles to dead-front + tilts flat-on as it opens
 					const sway = reduce ? 0 : Math.sin(swayT * 0.5) * 0.16;
 					model.rotation.y = (BASE_YAW + sway) * (1 - curOpen);
+					model.rotation.x = curOpen * OPEN_PITCH;
 					model.position.y = baseY + (reduce ? 0 : Math.sin(swayT * 0.9) * 0.04 * (1 - curOpen));
 					camera.position.z = baseDist * (1 - 0.55 * curZoom);
 
