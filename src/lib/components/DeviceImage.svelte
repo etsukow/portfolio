@@ -23,7 +23,7 @@
 <style>
 	.dev {
 		position: relative;
-		width: min(94vw, calc(86svh * var(--aspect)));
+		width: min(92vw, calc(82svh * var(--aspect)));
 		aspect-ratio: var(--aspect);
 		filter: drop-shadow(0 24px 40px rgb(0 0 0 / 0.45));
 	}

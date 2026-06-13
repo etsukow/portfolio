@@ -123,6 +123,15 @@
 				const LID_OPEN = 0; // 0° = laid fully flat (horizontal, both screens coplanar)
 				const OPEN_PITCH = Math.PI / 2; // tilt the flat device up to face the camera (screens toward viewer)
 				const BASE_YAW = -0.4;
+				// Headroom at rest so the scroll zoom-in has somewhere to go.
+				const FRAME_MARGIN = 1.2;
+				// The OS image (3ds-open.png) has ~4% transparent margin: its console fills
+				// only ~92% of the image box. Land the zoom at the same fraction of the canvas
+				// so the 3D console matches the image console's size at hand-off (no size jump).
+				const CONTENT_FILL = 0.92;
+				// Zoom pushes from baseDist down to baseDist / (FRAME_MARGIN * CONTENT_FILL),
+				// i.e. the device fills CONTENT_FILL of the framed box (never overflows).
+				const ZOOM_DEPTH = 1 - 1 / (FRAME_MARGIN * CONTENT_FILL);
 				let baseDist = 5;
 
 				function fit() {
@@ -134,9 +143,9 @@
 					const halfTan = Math.tan((camera.fov * Math.PI) / 180 / 2);
 					const dH = fitH / 2 / halfTan;
 					const dW = fitW / 2 / (halfTan * camera.aspect);
-					// base is intentionally roomy so the scroll zoom-in has somewhere to go;
-					// by the hand-off the device has grown to ~fill (matching the OS size).
-					baseDist = Math.max(dH, dW) * 1.5;
+					// slight headroom so the scroll zoom-in has somewhere to go; by the
+					// hand-off the device has grown to ~the OS size (no overshoot/clip).
+					baseDist = Math.max(dH, dW) * FRAME_MARGIN;
 					camera.position.set(0, 0, baseDist);
 					camera.lookAt(0, 0, 0);
 					camera.updateProjectionMatrix();
@@ -217,8 +226,8 @@
 					_box.setFromObject(model).getCenter(_v);
 					model.position.set(-_v.x, baseY - _v.y + bob, -_v.z);
 
-					// scroll zoom-in: pushes from the roomy base toward filling the frame
-					camera.position.z = baseDist * (1 - 0.4 * curZoom);
+					// gentle scroll zoom-in that ends exactly at the OS device size (no overshoot/clip)
+					camera.position.z = baseDist * (1 - ZOOM_DEPTH * curZoom);
 
 					renderer.render(scene, camera);
 

@@ -60,28 +60,40 @@
 
 		mode = '3d';
 		gsap.registerPlugin(ScrollTrigger);
-		const st = ScrollTrigger.create({
-			trigger: introEl!,
-			start: 'top top',
-			end: () => '+=' + window.innerHeight * 2.2,
-			pin: stageEl!,
-			pinSpacing: true,
-			anticipatePin: 1,
-			onUpdate: (self) => {
-				progress = self.progress;
-				if (self.progress > 0.9) enter();
-				else if (self.progress < 0.85 && entered) {
-					entered = false;
-					getLenis()?.start();
-				}
-			}
-		});
 
+		let st: ScrollTrigger | undefined;
+		let cancelled = false;
 		const onLoad = () => ScrollTrigger.refresh();
 		window.addEventListener('load', onLoad);
+
+		// `introEl`/`stageEl` are bound inside the `{#if mode === '3d'}` block, which
+		// Svelte only renders on the next tick — so wait for that DOM before pinning,
+		// otherwise the trigger gets undefined elements and no scroll height is created.
+		tick().then(() => {
+			if (cancelled || !introEl || !stageEl) return;
+			st = ScrollTrigger.create({
+				trigger: introEl,
+				start: 'top top',
+				end: () => '+=' + window.innerHeight * 2.2,
+				pin: stageEl,
+				pinSpacing: true,
+				anticipatePin: 1,
+				onUpdate: (self) => {
+					progress = self.progress;
+					if (self.progress > 0.9) enter();
+					else if (self.progress < 0.85 && entered) {
+						entered = false;
+						getLenis()?.start();
+					}
+				}
+			});
+			ScrollTrigger.refresh();
+		});
+
 		return () => {
+			cancelled = true;
 			window.removeEventListener('load', onLoad);
-			st.kill();
+			st?.kill();
 		};
 	});
 </script>
@@ -126,10 +138,12 @@
 		display: grid;
 		place-items: center;
 		overflow: hidden;
+		/* same padding as the OS so the device clears the navbar and lines up */
+		padding: clamp(72px, 10vh, 88px) clamp(0.6rem, 3vw, 2rem) clamp(0.8rem, 3vh, 1.5rem);
 	}
 	.canvas {
-		/* fill the page (matches the OS device size for a seamless handoff) */
-		width: min(94vw, calc(86svh * 0.948));
+		/* same box as the OS device → seamless, same-size handoff */
+		width: min(92vw, calc(82svh * 0.948));
 		aspect-ratio: 0.948;
 	}
 
@@ -160,7 +174,7 @@
 		z-index: 40;
 		display: grid;
 		place-items: center;
-		padding: clamp(74px, 11vh, 92px) clamp(0.6rem, 3vw, 2rem) clamp(0.8rem, 3vh, 1.5rem);
+		padding: clamp(72px, 10vh, 88px) clamp(0.6rem, 3vw, 2rem) clamp(0.8rem, 3vh, 1.5rem);
 		background:
 			radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 60%),
 			var(--bg);
