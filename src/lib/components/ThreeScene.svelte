@@ -108,13 +108,16 @@
 				const topScreen = root.getObjectByName('Top_Screen002');
 				const bottomScreen = root.getObjectByName('Bottom_Screen002');
 
-				// Frame for the flat (fully open) pose — its widest footprint — so the
-				// camera never clips it in any state.
+				// Frame for the open, face-on pose (lid flat + tilted up to the camera) —
+				// the largest on-screen silhouette — so nothing clips in any state.
 				if (lid) lid.rotation.x = 0;
+				model.rotation.x = Math.PI / 2;
+				model.updateMatrixWorld(true);
 				const fitRadius = new THREE.Box3()
 					.setFromObject(model)
 					.getBoundingSphere(new THREE.Sphere())
 					.radius;
+				model.rotation.x = 0;
 
 				const LID_CLOSED = Math.PI; // 180° = clamshell shut
 				const LID_OPEN = 0; // 0° = laid fully flat (horizontal, both screens coplanar)
@@ -131,8 +134,8 @@
 					// vertical / horizontal FOV, plus a small margin.
 					const vFov = (camera.fov * Math.PI) / 180;
 					const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-					baseDist = (fitRadius * 1.12) / Math.sin(Math.min(vFov, hFov) / 2);
-					camera.position.set(0, 0.1, baseDist);
+					baseDist = (fitRadius * 1.2) / Math.sin(Math.min(vFov, hFov) / 2);
+					camera.position.set(0, 0, baseDist);
 					camera.lookAt(0, 0, 0);
 					camera.updateProjectionMatrix();
 				}
@@ -203,8 +206,17 @@
 					const sway = reduce ? 0 : Math.sin(swayT * 0.5) * 0.16;
 					model.rotation.y = (BASE_YAW + sway) * (1 - curOpen);
 					model.rotation.x = curOpen * OPEN_PITCH;
-					model.position.y = baseY + (reduce ? 0 : Math.sin(swayT * 0.9) * 0.04 * (1 - curOpen));
-					camera.position.z = baseDist * (1 - 0.55 * curZoom);
+
+					// Re-center the *current* silhouette each frame so the device stays framed
+					// in any pose (the lid/pitch animation otherwise shifts it off-centre).
+					const bob = reduce ? 0 : Math.sin(swayT * 0.9) * 0.04 * (1 - curOpen);
+					model.position.set(0, 0, 0);
+					model.updateMatrixWorld(true);
+					_box.setFromObject(model).getCenter(_v);
+					model.position.set(-_v.x, baseY - _v.y + bob, -_v.z);
+
+					// keep the push-in within the fit margin so it never clips the edges
+					camera.position.z = baseDist * (1 - 0.15 * curZoom);
 
 					renderer.render(scene, camera);
 
