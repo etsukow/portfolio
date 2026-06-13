@@ -1,0 +1,241 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+
+	interface Props {
+		/** Lid open amount, 0 (closed) → 1 (fully open). Drives the GLTF clip. */
+		open?: number;
+		/** Scroll-driven spin amount, 0 → 1. */
+		spin?: number;
+		/** Reveal amount, 0 (hidden) → 1 (shown). Fades/lifts the canvas. */
+		reveal?: number;
+		modelUrl?: string;
+	}
+
+	let { open = 0, spin = 0, reveal = 1, modelUrl = '/models/3ds.glb' }: Props = $props();
+
+	let host: HTMLDivElement;
+	let loaded = $state(false);
+	let failed = $state(false);
+
+	// Targets read by the render loop (lerped for smoothness).
+	let openTarget = 0;
+	let spinTarget = 0;
+
+	$effect(() => {
+		openTarget = Math.max(0, Math.min(1, open));
+		spinTarget = Math.max(0, Math.min(1, spin));
+	});
+
+	$effect(() => {
+		if (!host) return;
+		const r = Math.max(0, Math.min(1, reveal));
+		host.style.opacity = String(r);
+		host.style.transform = `translateY(${(1 - r) * 32}px) scale(${0.92 + r * 0.08})`;
+	});
+
+	onMount(() => {
+		let disposed = false;
+		let cleanup: (() => void) | undefined;
+
+		(async () => {
+			try {
+				const THREE = await import('three');
+				const { GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js');
+				const { RoomEnvironment } = await import(
+					'three/examples/jsm/environments/RoomEnvironment.js'
+				);
+				if (disposed) return;
+
+				const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+				const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+				renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				renderer.toneMappingExposure = 1.05;
+				host.appendChild(renderer.domElement);
+				renderer.domElement.style.width = '100%';
+				renderer.domElement.style.height = '100%';
+
+				const scene = new THREE.Scene();
+				const pmrem = new THREE.PMREMGenerator(renderer);
+				scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
+
+				const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+				camera.position.set(0, 0.15, 5);
+
+				// Theme-aware lighting.
+				const key = new THREE.DirectionalLight(0xffffff, 2.4);
+				key.position.set(2.5, 3.5, 4);
+				const rim = new THREE.DirectionalLight(0xcba6f7, 1.6);
+				rim.position.set(-3, 1.5, -2.5);
+				const fill = new THREE.HemisphereLight(0x89b4fa, 0x1e1e2e, 0.7);
+				scene.add(key, rim, fill);
+
+				const model = new THREE.Group();
+				scene.add(model);
+				let baseY = 0;
+				let mixer: import('three').AnimationMixer | null = null;
+				let clipDuration = 0;
+
+				const loader = new GLTFLoader();
+				const gltf = await loader.loadAsync(modelUrl);
+				if (disposed) return;
+
+				const root = gltf.scene;
+
+				// Center + scale to a consistent on-screen size.
+				const box = new THREE.Box3().setFromObject(root);
+				const size = box.getSize(new THREE.Vector3());
+				const center = box.getCenter(new THREE.Vector3());
+				root.position.sub(center);
+				const maxDim = Math.max(size.x, size.y, size.z) || 1;
+				const scale = 2.6 / maxDim;
+				root.scale.setScalar(scale);
+				model.add(root);
+				model.rotation.y = -0.45;
+
+				if (gltf.animations.length > 0) {
+					mixer = new THREE.AnimationMixer(root);
+					const clip = gltf.animations[0];
+					const action = mixer.clipAction(clip);
+					action.play();
+					action.paused = true;
+					clipDuration = clip.duration;
+				}
+
+				const SPIN_RANGE = Math.PI * 1.6;
+
+				function fit() {
+					const w = host.clientWidth || 1;
+					const h = host.clientHeight || 1;
+					renderer.setSize(w, h, false);
+					camera.aspect = w / h;
+					camera.updateProjectionMatrix();
+				}
+				fit();
+				const ro = new ResizeObserver(fit);
+				ro.observe(host);
+
+				loaded = true;
+
+				// Only render while visible / tab focused.
+				let inView = true;
+				const io = new IntersectionObserver(
+					([e]) => {
+						inView = e.isIntersecting;
+						if (inView) start();
+					},
+					{ threshold: 0.01 }
+				);
+				io.observe(host);
+
+				const clock = new THREE.Clock();
+				let curOpen = 0;
+				let curSpin = 0;
+				let idleRot = 0;
+				let raf = 0;
+
+				function frame() {
+					raf = requestAnimationFrame(frame);
+					if (!inView || document.hidden) {
+						cancelAnimationFrame(raf);
+						raf = 0;
+						return;
+					}
+					const dt = Math.min(clock.getDelta(), 0.05);
+					const k = Math.min(1, dt * 7);
+					curOpen += (openTarget - curOpen) * k;
+					curSpin += (spinTarget - curSpin) * k;
+
+					if (mixer && clipDuration) mixer.setTime(curOpen * clipDuration);
+					if (!reduce) idleRot += dt * 0.18;
+
+					model.rotation.y = -0.45 + curSpin * SPIN_RANGE + (reduce ? 0 : idleRot);
+					model.position.y = baseY + (reduce ? 0 : Math.sin(idleRot * 1.4) * 0.05);
+
+					renderer.render(scene, camera);
+				}
+				function start() {
+					if (!raf) {
+						clock.getDelta();
+						frame();
+					}
+				}
+				start();
+
+				cleanup = () => {
+					if (raf) cancelAnimationFrame(raf);
+					ro.disconnect();
+					io.disconnect();
+					pmrem.dispose();
+					renderer.dispose();
+					scene.traverse((o) => {
+						const m = o as import('three').Mesh;
+						if (m.geometry) m.geometry.dispose();
+						const mat = m.material as import('three').Material | import('three').Material[];
+						if (Array.isArray(mat)) mat.forEach((x) => x.dispose());
+						else if (mat) mat.dispose();
+					});
+					renderer.domElement.remove();
+				};
+			} catch (err) {
+				console.error('[ThreeScene] failed to load model', err);
+				failed = true;
+			}
+		})();
+
+		return () => {
+			disposed = true;
+			cleanup?.();
+		};
+	});
+</script>
+
+<div class="scene" bind:this={host} aria-hidden="true">
+	{#if !loaded && !failed}
+		<div class="placeholder"><span class="ring"></span></div>
+	{/if}
+	{#if failed}
+		<div class="placeholder fail">3D model unavailable</div>
+	{/if}
+</div>
+
+<style>
+	.scene {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		will-change: opacity, transform;
+	}
+
+	.placeholder {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		color: var(--faint);
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+	}
+
+	.ring {
+		width: 38px;
+		height: 38px;
+		border-radius: 50%;
+		border: 3px solid var(--surface-2);
+		border-top-color: var(--accent);
+		animation: spin 0.9s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.ring {
+			animation: none;
+		}
+	}
+</style>
