@@ -128,8 +128,9 @@
 		overflow: hidden;
 	}
 	.canvas {
-		width: min(92vw, 620px);
-		height: min(70svh, 560px);
+		/* fill the page (matches the OS device size for a seamless handoff) */
+		width: min(94vw, calc(86svh * 0.948));
+		aspect-ratio: 0.948;
 	}
 
 	.start {

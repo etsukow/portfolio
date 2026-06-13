@@ -134,7 +134,7 @@
 					// vertical / horizontal FOV, plus a small margin.
 					const vFov = (camera.fov * Math.PI) / 180;
 					const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-					baseDist = (fitRadius * 1.2) / Math.sin(Math.min(vFov, hFov) / 2);
+					baseDist = (fitRadius * 1.06) / Math.sin(Math.min(vFov, hFov) / 2);
 					camera.position.set(0, 0, baseDist);
 					camera.lookAt(0, 0, 0);
 					camera.updateProjectionMatrix();
@@ -216,7 +216,7 @@
 					model.position.set(-_v.x, baseY - _v.y + bob, -_v.z);
 
 					// keep the push-in within the fit margin so it never clips the edges
-					camera.position.z = baseDist * (1 - 0.15 * curZoom);
+					camera.position.z = baseDist * (1 - 0.05 * curZoom);
 
 					renderer.render(scene, camera);
 
