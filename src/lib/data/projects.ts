@@ -8,8 +8,6 @@ export interface Project {
 	demo?: string;
 	/** Catppuccin accent token used for the tile. */
 	accent: string;
-	/** Emoji shown in the "app icon". */
-	icon: string;
 	year: string;
 	scope: string;
 }
@@ -23,7 +21,6 @@ export const projects: Project[] = [
 		tech: ['Svelte', 'Rust', 'C', 'Assembly', 'Docker'],
 		href: 'https://github.com/etsukow/Luma3DS-Plugin-DiscordRPC',
 		accent: 'var(--ctp-blue)',
-		icon: '🎮',
 		year: '2026',
 		scope: 'in development'
 	},
@@ -34,7 +31,6 @@ export const projects: Project[] = [
 			'A desktop app that pulls sensor specifications out of scientific PDFs, combining rule-based parsing with a local LLM, confidence scoring and a validation workflow. Built during my internship at KU Leuven.',
 		tech: ['Python', 'PySide6', 'Ollama', 'SQLite'],
 		accent: 'var(--ctp-sapphire)',
-		icon: '🔬',
 		year: '2026',
 		scope: 'KU Leuven'
 	},
@@ -45,7 +41,6 @@ export const projects: Project[] = [
 			'A configurable real-time particle system with an interactive GUI: gravity, bounce, rotation, draw and arrow modes, all tunable live and driven by JSON presets.',
 		tech: ['Go', 'Ebitengine', 'JSON'],
 		accent: 'var(--ctp-green)',
-		icon: '✨',
 		year: '2024',
 		scope: 'team'
 	}

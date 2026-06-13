@@ -1,10 +1,10 @@
 export type App = 'home' | 'about' | 'projects' | 'skills' | 'contact';
 
-export const apps: { id: App; label: string; icon: string; accent: string }[] = [
-	{ id: 'about', label: 'About', icon: '👤', accent: 'var(--ctp-mauve)' },
-	{ id: 'projects', label: 'Projects', icon: '🎮', accent: 'var(--ctp-blue)' },
-	{ id: 'skills', label: 'Skills', icon: '🎒', accent: 'var(--ctp-green)' },
-	{ id: 'contact', label: 'Contact', icon: '✉️', accent: 'var(--ctp-peach)' }
+export const apps: { id: App; label: string; accent: string }[] = [
+	{ id: 'about', label: 'About', accent: 'var(--ctp-mauve)' },
+	{ id: 'projects', label: 'Projects', accent: 'var(--ctp-blue)' },
+	{ id: 'skills', label: 'Skills', accent: 'var(--ctp-green)' },
+	{ id: 'contact', label: 'Contact', accent: 'var(--ctp-peach)' }
 ];
 
 // Screen rectangles (fractions of the open-3DS image), measured from the model.

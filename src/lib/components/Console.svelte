@@ -22,6 +22,18 @@
 	const zoom = $derived(map(progress, 0.5, 1));
 	const hint = $derived(1 - map(progress, 0, 0.18));
 
+	// Once the OS overlay has fully faded in, hide + freeze the 3D scene. A live
+	// WebGL layer left rendering behind the opaque overlay caused shadow/compositing
+	// artifacts to bleed through on repaint; this removes it entirely (and saves GPU).
+	let frozen = $state(false);
+	$effect(() => {
+		if (entered) {
+			const id = setTimeout(() => (frozen = true), 650);
+			return () => clearTimeout(id);
+		}
+		frozen = false;
+	});
+
 	async function enter() {
 		if (entered) return;
 		entered = true;
@@ -100,9 +112,9 @@
 
 {#if mode === '3d'}
 	<section bind:this={introEl} class="intro">
-		<div bind:this={stageEl} class="stage">
+		<div bind:this={stageEl} class="stage" class:frozen>
 			<div class="canvas" aria-hidden="true">
-				<ThreeScene {open} {zoom} reveal={1} />
+				<ThreeScene {open} {zoom} {frozen} reveal={1} />
 			</div>
 			<button
 				class="start"
@@ -123,7 +135,7 @@
 	{:else}
 		<DeviceImage />
 		{#if entered}
-			<button class="power" onclick={exit} aria-label="Back to start">⏻ exit</button>
+			<button class="power" onclick={exit} aria-label="Back to start">exit</button>
 		{/if}
 	{/if}
 </div>
@@ -140,6 +152,11 @@
 		overflow: hidden;
 		/* same padding as the OS so the device clears the navbar and lines up */
 		padding: clamp(72px, 10vh, 88px) clamp(0.6rem, 3vw, 2rem) clamp(0.8rem, 3vh, 1.5rem);
+	}
+	/* once the OS overlay owns the screen, take the 3D layer out of the paint
+	   entirely so it can't bleed through behind the static device */
+	.stage.frozen {
+		visibility: hidden;
 	}
 	.canvas {
 		/* same box as the OS device → seamless, same-size handoff */

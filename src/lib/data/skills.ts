@@ -41,7 +41,7 @@ export interface TimelineEntry {
 
 export const about = {
 	intro:
-		"I'm a software-engineering apprentice at Lemerpax through Polytech Nantes (IDIA — AI & data track), currently on a summer research internship at KU Leuven. I like building end-to-end: from data & ML tooling to real-time apps, 3D on the web, and the CI/CD that ships them.",
+		"I'm a software-engineering apprentice at Lemerpax through Polytech Nantes (IDIA — AI & data track), currently interning at KU Leuven and awaiting my diploma. I build end-to-end: from data & ML tooling to real-time apps, 3D on the web, and the CI/CD that ships them.",
 	timeline: [
 		{
 			when: 'Jun–Aug 2026',

@@ -8,6 +8,8 @@
 		reveal?: number;
 		/** Zoom-in amount, 0 (framed) → 1 (pushed in close, device overflows). */
 		zoom?: number;
+		/** When true, the render loop stops entirely (the OS has taken over). */
+		frozen?: boolean;
 		modelUrl?: string;
 		/** Emits the screens' + whole device's projected rects (fractions of canvas) each frame. */
 		onScreens?: (r: { top: Rect; bottom: Rect; device: Rect }) => void;
@@ -20,7 +22,7 @@
 		h: number;
 	}
 
-	let { open = 0, reveal = 1, zoom = 0, modelUrl = '/models/3ds.glb', onScreens }: Props =
+	let { open = 0, reveal = 1, zoom = 0, frozen = false, modelUrl = '/models/3ds.glb', onScreens }: Props =
 		$props();
 
 	let host: HTMLDivElement;
@@ -30,10 +32,17 @@
 	// Targets read by the render loop (lerped for smoothness).
 	let openTarget = 0;
 	let zoomTarget = 0;
+	let frozenNow = false;
+	let resume: (() => void) | undefined;
 
 	$effect(() => {
 		openTarget = Math.max(0, Math.min(1, open));
 		zoomTarget = Math.max(0, Math.min(1, zoom));
+	});
+
+	$effect(() => {
+		frozenNow = frozen;
+		if (!frozen) resume?.(); // restart the loop when the OS hands control back
 	});
 
 	$effect(() => {
@@ -199,7 +208,7 @@
 
 				function frame() {
 					raf = requestAnimationFrame(frame);
-					if (!inView || document.hidden) {
+					if (!inView || document.hidden || frozenNow) {
 						cancelAnimationFrame(raf);
 						raf = 0;
 						return;
@@ -244,6 +253,7 @@
 						frame();
 					}
 				}
+				resume = start;
 				start();
 
 				cleanup = () => {

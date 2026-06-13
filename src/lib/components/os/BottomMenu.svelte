@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { apps, type App } from '$lib/data/os';
+	import Icon from '../Icon.svelte';
 
 	let { active, onOpen }: { active: App; onOpen: (a: App) => void } = $props();
 
@@ -26,7 +27,7 @@
 				style="--a:{a.accent}"
 				onclick={() => onOpen(a.id)}
 			>
-				<span class="ic">{a.icon}</span>
+				<span class="ic"><Icon name={a.id} /></span>
 				<span class="lb">{a.label}</span>
 			</button>
 		{/each}
@@ -86,8 +87,13 @@
 			border-color 0.15s var(--ease);
 	}
 	.app .ic {
-		font-size: clamp(1.1rem, 9cqw, 2rem);
-		line-height: 1;
+		display: grid;
+		place-items: center;
+		color: var(--a);
+	}
+	.app .ic :global(svg) {
+		width: clamp(20px, 8.5cqw, 30px);
+		height: auto;
 	}
 	.app .lb {
 		font-family: var(--font-display);

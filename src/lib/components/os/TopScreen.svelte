@@ -3,6 +3,7 @@
 	import { projects, githubUrl, email } from '$lib/data/projects';
 	import { skillGroups, about } from '$lib/data/skills';
 	import type { App } from '$lib/data/os';
+	import Icon from '../Icon.svelte';
 
 	let { active, compact = false }: { active: App; compact?: boolean } = $props();
 	const title = $derived(active === 'home' ? 'etsuOS' : active);
@@ -48,7 +49,7 @@
 	$effect(() => {
 		active;
 		if (!view) return;
-		view.scrollTo({ top: 0 });
+		view.scrollTo({ top: 0, behavior: 'instant' }); // instant reset, no smooth-scroll flash
 		current = 0;
 		count = slides().length || 1;
 	});
@@ -108,7 +109,7 @@
 				<section class="slide">
 					<article class="prj" style="--a:{p.accent}">
 						<div class="ph">
-							<span class="pic">{p.icon}</span>
+							<span class="pic">{p.name.charAt(0)}</span>
 							<div>
 								<h4>{p.name}</h4>
 								<p class="ptag">{p.tagline}</p>
@@ -124,7 +125,7 @@
 							{#if p.href}
 								<a href={p.href} target="_blank" rel="noopener noreferrer">open ▸</a>
 							{:else}
-								<span class="lk pixel">🔒 private</span>
+								<span class="lk pixel"><Icon name="lock" size={10} />private</span>
 							{/if}
 						</div>
 					</article>
@@ -144,12 +145,14 @@
 		{:else if active === 'contact'}
 			<section class="slide contact">
 				<h3>Let's build <span class="hl">something good.</span></h3>
-				<p class="csub">Open to internships, apprenticeships and fun collaborations.</p>
+				<p class="csub">Awaiting my diploma — always glad to talk code, projects, or ideas.</p>
 				<div class="cbtns">
-					<a class="btn primary" href="mailto:{email}">✉ Email me</a>
-					<a class="btn ghost" href={githubUrl} target="_blank" rel="noopener noreferrer">★ GitHub</a>
+					<a class="btn primary" href="mailto:{email}"><Icon name="mail" size={15} />Email me</a>
+					<a class="btn ghost" href={githubUrl} target="_blank" rel="noopener noreferrer"
+						><Icon name="github" size={15} />GitHub</a
+					>
 				</div>
-				<p class="ps2 pixel">ps — yes, this whole site is a nintendo 3ds 🎮</p>
+				<p class="ps2 pixel">ps — yes, this whole site is a nintendo 3ds</p>
 			</section>
 		{/if}
 	</div>
@@ -233,14 +236,14 @@
 		flex-direction: column;
 		justify-content: center;
 		gap: 0.55rem;
-		padding: 5.5cqw 6cqw;
+		padding: 3cqw 6cqw;
 		font-size: clamp(0.72rem, 3.3cqw, 0.98rem);
-		animation: fade 0.35s var(--ease) both;
+		animation: fade 0.3s var(--ease) both;
 	}
+	/* opacity-only — no transform, so switching sections never nudges the content */
 	@keyframes fade {
 		from {
 			opacity: 0;
-			transform: translateY(8px);
 		}
 	}
 
@@ -323,7 +326,7 @@
 	.prj {
 		border: 1px solid color-mix(in srgb, var(--a) 26%, var(--surface));
 		border-radius: 14px;
-		padding: 0.8rem 0.9rem;
+		padding: 0.7rem 0.85rem;
 		background:
 			radial-gradient(130% 90% at 0% 0%, color-mix(in srgb, var(--a) 14%, transparent), transparent 70%),
 			var(--bg-alt);
@@ -353,7 +356,11 @@
 		height: 2.1em;
 		display: grid;
 		place-items: center;
-		font-size: 1.05em;
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 1.15em;
+		color: var(--a);
+		text-transform: uppercase;
 		border-radius: 10px;
 		background: color-mix(in srgb, var(--a) 18%, var(--bg-crust));
 		border: 1px solid color-mix(in srgb, var(--a) 35%, transparent);
@@ -374,14 +381,14 @@
 		color: var(--subtext0);
 		background: var(--bg-crust);
 		border: 1px solid var(--border);
-		padding: 0.12rem 0.4rem;
-		border-radius: 999px;
+		padding: 0.14rem 0.42rem;
+		border-radius: 5px;
 	}
 	.pdesc {
 		color: var(--muted);
-		font-size: 0.84em;
-		line-height: 1.45;
-		margin: 0.5rem 0 0.55rem;
+		font-size: 0.82em;
+		line-height: 1.4;
+		margin: 0.45rem 0 0.5rem;
 	}
 	.tech {
 		list-style: none;
@@ -393,8 +400,8 @@
 	.tech li {
 		font-family: var(--font-mono);
 		font-size: 0.68em;
-		padding: 0.12rem 0.45rem;
-		border-radius: 999px;
+		padding: 0.16rem 0.5rem;
+		border-radius: 5px;
 		background: color-mix(in srgb, var(--a) 12%, var(--bg-crust));
 		border: 1px solid color-mix(in srgb, var(--a) 28%, var(--border));
 		color: var(--subtext1);
@@ -404,7 +411,7 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.5rem;
-		margin-top: 0.6rem;
+		margin-top: 0.5rem;
 	}
 	.ps,
 	.lk {
@@ -412,6 +419,11 @@
 		color: var(--faint);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
+	}
+	.lk {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
 	}
 	.pf a {
 		font-family: var(--font-display);
@@ -497,6 +509,9 @@
 		gap: 0.6rem;
 	}
 	.cbtns .btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
 		font-size: 0.9em;
 		padding: 0.55rem 1rem;
 	}
