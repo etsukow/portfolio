@@ -62,8 +62,8 @@
 		min-height: 0;
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 4cqw;
-		padding: 5cqw;
+		gap: 3cqw;
+		padding: 3.5cqw;
 		align-content: center;
 	}
 	.apps:focus-visible {
@@ -75,8 +75,8 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 0.3rem;
-		padding: 3cqw 1cqw;
+		gap: 0.25rem;
+		padding: 2.2cqw 1cqw;
 		border-radius: 12px;
 		background: var(--bg-alt);
 		border: 2px solid var(--edge);
@@ -92,7 +92,7 @@
 		color: var(--a);
 	}
 	.app .ic :global(svg) {
-		width: clamp(20px, 8.5cqw, 30px);
+		width: clamp(18px, 7cqw, 26px);
 		height: auto;
 	}
 	.app .lb {

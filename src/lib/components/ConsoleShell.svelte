@@ -34,7 +34,9 @@
 <style>
 	.device {
 		width: min(94vw, 680px);
-		height: min(90svh, 800px);
+		/* leave room for the navbar + .os padding (≈7rem) so the bottom menu is
+		   never clipped on short viewports (phone toolbar showing, etc.) */
+		height: min(800px, calc(100svh - 7rem));
 		margin-inline: auto;
 		display: flex;
 		flex-direction: column;
@@ -54,7 +56,7 @@
 	}
 
 	.lid {
-		flex: 1.45;
+		flex: 1.2;
 		min-height: 0;
 		display: flex;
 	}
