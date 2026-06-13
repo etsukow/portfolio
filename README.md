@@ -1,8 +1,10 @@
 # etsu — portfolio
 
 Personal portfolio of **Julien "etsu" Evrard**. A single-page, fully static site
-with a cinematic scroll-driven hero (a Nintendo 3DS rendered in WebGL + a typing
-`whoami` terminal), themed with **Catppuccin** (Mocha by default, Latte light mode).
+with a **retro-handheld / console** look: a cinematic scroll-driven hero (a Nintendo
+3DS rendered in WebGL + a typing `whoami` terminal), launchable project "app tiles",
+chunky tactile UI and subtle CRT scanlines — themed with **Catppuccin** (Mocha by
+default, Latte light mode).
 
 ## Stack
 
@@ -11,7 +13,7 @@ with a cinematic scroll-driven hero (a Nintendo 3DS rendered in WebGL + a typing
 - **[GSAP ScrollTrigger](https://gsap.com/) + [Lenis](https://lenis.darkroom.engineering/)** — pinned hero timeline & smooth scrolling
 - **IntersectionObserver** reveal action for section animations
 - **Catppuccin** palette as CSS custom properties, switched via `[data-theme]`
-- Self-hosted fonts (Inter + JetBrains Mono via `@fontsource`)
+- Self-hosted fonts via `@fontsource` (Inter, Fredoka, JetBrains Mono, Press Start 2P)
 - Output: `@sveltejs/adapter-static` → prerendered, served by **nginx**
 
 Respects `prefers-reduced-motion` (the hero falls back to a static layout) and

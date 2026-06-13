@@ -94,6 +94,13 @@
 				model.add(root);
 				model.rotation.y = -0.45;
 
+				// Rotation-invariant bounding sphere → used to frame the camera so the
+				// model always fits the canvas (whatever the aspect) and never clips.
+				const fitRadius = new THREE.Box3()
+					.setFromObject(model)
+					.getBoundingSphere(new THREE.Sphere())
+					.radius;
+
 				if (gltf.animations.length > 0) {
 					mixer = new THREE.AnimationMixer(root);
 					const clip = gltf.animations[0];
@@ -110,6 +117,13 @@
 					const h = host.clientHeight || 1;
 					renderer.setSize(w, h, false);
 					camera.aspect = w / h;
+					// Distance that fits the bounding sphere within the *tighter* of the
+					// vertical / horizontal FOV, plus a small margin.
+					const vFov = (camera.fov * Math.PI) / 180;
+					const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
+					const dist = (fitRadius * 1.12) / Math.sin(Math.min(vFov, hFov) / 2);
+					camera.position.set(0, 0.1, dist);
+					camera.lookAt(0, 0, 0);
 					camera.updateProjectionMatrix();
 				}
 				fit();

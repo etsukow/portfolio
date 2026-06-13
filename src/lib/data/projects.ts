@@ -6,25 +6,15 @@ export interface Project {
 	/** Public source/demo link. Leave empty for private/coursework repos. */
 	href?: string;
 	demo?: string;
-	/** Catppuccin accent token used for the card. */
+	/** Catppuccin accent token used for the tile. */
 	accent: string;
+	/** Emoji shown in the "app icon". */
+	icon: string;
 	year: string;
 	scope: string;
 }
 
-// NOTE: a few flagship repos live under other orgs or are private — links left
-// empty are placeholders to confirm before publishing.
 export const projects: Project[] = [
-	{
-		name: 'Odysseus',
-		tagline: 'A self-hosted AI workspace',
-		description:
-			'A private, all-in-one AI workspace: multi-model chat (vLLM, Ollama, OpenAI…), an agent with tool access, deep research, document editing, email triage and calendar — all running on your own hardware.',
-		tech: ['Python', 'FastAPI', 'ChromaDB', 'MCP', 'PostgreSQL', 'Docker'],
-		accent: 'var(--ctp-mauve)',
-		year: '2025',
-		scope: '~34k LOC · solo'
-	},
 	{
 		name: 'Luma3DS · DiscordRPC',
 		tagline: 'Discord Rich Presence on a Nintendo 3DS',
@@ -33,28 +23,20 @@ export const projects: Project[] = [
 		tech: ['Svelte', 'Rust', 'C', 'Assembly', 'Docker'],
 		href: 'https://github.com/etsukow/Luma3DS-Plugin-DiscordRPC',
 		accent: 'var(--ctp-blue)',
+		icon: '🎮',
 		year: '2026',
 		scope: 'in development'
 	},
 	{
-		name: 'iWHA',
-		tagline: 'Real-time glyph recognition',
+		name: 'SensorBuddy',
+		tagline: 'AI-assisted data extraction',
 		description:
-			'Draw a glyph and watch it get classified live — rings, sigils, spirals, waves — using stroke simplification, ring detection and Hausdorff-distance matching on the canvas.',
-		tech: ['React 19', 'TypeScript', 'Vite', 'Canvas', 'Geometry'],
-		accent: 'var(--ctp-teal)',
+			'A desktop app that pulls sensor specifications out of scientific PDFs, combining rule-based parsing with a local LLM, confidence scoring and a validation workflow. Built during my internship at KU Leuven.',
+		tech: ['Python', 'PySide6', 'Ollama', 'SQLite'],
+		accent: 'var(--ctp-sapphire)',
+		icon: '🔬',
 		year: '2026',
-		scope: 'solo'
-	},
-	{
-		name: 'baki',
-		tagline: 'A full-stack social mobile app',
-		description:
-			'Cross-platform social network with real-time 1:1 and group messaging, events, feeds, push notifications and verified pro accounts — from the React Native app down to the API and database.',
-		tech: ['Expo / RN', 'Express', 'Prisma', 'MySQL', 'Socket.IO'],
-		accent: 'var(--ctp-peach)',
-		year: '2025',
-		scope: 'team'
+		scope: 'KU Leuven'
 	},
 	{
 		name: 'sae_go',
@@ -63,18 +45,9 @@ export const projects: Project[] = [
 			'A configurable real-time particle system with an interactive GUI: gravity, bounce, rotation, draw and arrow modes, all tunable live and driven by JSON presets.',
 		tech: ['Go', 'Ebitengine', 'JSON'],
 		accent: 'var(--ctp-green)',
+		icon: '✨',
 		year: '2024',
 		scope: 'team'
-	},
-	{
-		name: 'SensorBuddy',
-		tagline: 'AI-assisted data extraction',
-		description:
-			'A desktop app that pulls sensor specifications out of scientific PDFs, combining rule-based parsing with a local LLM, confidence scoring and a validation workflow. Built during my Erasmus at KU Leuven.',
-		tech: ['Python', 'PySide6', 'Ollama', 'SQLite'],
-		accent: 'var(--ctp-sapphire)',
-		year: '2025',
-		scope: 'KU Leuven'
 	}
 ];
 

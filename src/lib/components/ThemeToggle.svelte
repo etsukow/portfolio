@@ -44,11 +44,12 @@
 	.track {
 		position: relative;
 		display: block;
-		width: 52px;
-		height: 28px;
+		width: 54px;
+		height: 30px;
 		border-radius: 999px;
-		background: var(--surface);
-		border: 1px solid var(--border);
+		background: var(--bg-alt);
+		border: var(--border-w) solid var(--edge);
+		box-shadow: 0 3px 0 0 var(--edge);
 		transition: background-color 0.4s var(--ease);
 	}
 
@@ -63,7 +64,7 @@
 		border-radius: 999px;
 		background: var(--accent);
 		color: var(--bg-crust);
-		box-shadow: 0 2px 8px rgb(var(--shadow-rgb) / 0.4);
+		box-shadow: 0 2px 0 0 var(--edge);
 		transition:
 			transform 0.4s var(--ease),
 			background-color 0.4s var(--ease);

@@ -5,16 +5,14 @@
 	import ThreeScene from './ThreeScene.svelte';
 	import Whoami from './Whoami.svelte';
 
-	let section: HTMLElement;
 	let stage: HTMLElement;
 
 	let progress = $state(0);
-	let intro = $state(0); // page-load entrance for the 3D scene
+	let intro = $state(0);
 
 	const clamp = (n: number) => Math.max(0, Math.min(1, n));
 	const map = (v: number, a: number, b: number) => clamp((v - a) / (b - a));
 
-	// Scroll choreography derived from a single progress value.
 	const termT = $derived(map(progress, 0.04, 0.55));
 	const threeOpen = $derived(map(progress, 0.34, 0.72));
 	const threeSpin = $derived(map(progress, 0.62, 1));
@@ -25,7 +23,6 @@
 		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		gsap.registerPlugin(ScrollTrigger);
 
-		// Entrance for the 3D model.
 		const introObj = { v: 0 };
 		if (reduce) intro = 1;
 		else
@@ -38,7 +35,7 @@
 			});
 
 		if (reduce) {
-			progress = 0.7; // resolved static state, no pinning
+			progress = 0.7;
 			return;
 		}
 
@@ -62,41 +59,47 @@
 	});
 </script>
 
-<section bind:this={section} class="hero" id="top">
+<section class="hero" id="top">
 	<div bind:this={stage} class="stage">
-		<div class="glow" style="opacity:{0.5 + intro * 0.5}"></div>
-
 		<div class="inner">
 			<div class="copy">
-				<p class="eyebrow">hi, i'm julien</p>
+				<p class="eyebrow">press ▶ start</p>
 				<h1>
-					Software that <span class="gradient-text">thinks, renders</span> &amp; ships.
+					Software that <span class="w1">thinks</span>, <span class="w2">renders</span>
+					&amp; <span class="w3">ships</span>.
 				</h1>
 				<p class="lede">
-					I design and build AI workspaces, real-time apps, 3D on the web — and the
+					I design and build data &amp; ML tooling, real-time apps, 3D on the web — and the
 					pipelines that deploy them.
 				</p>
-				<div class="termwrap" style="opacity:{0.35 + termT * 0.65}">
+				<div class="termwrap" style="opacity:{0.4 + termT * 0.6}">
 					<Whoami t={termT} />
 				</div>
 			</div>
 
-			<div class="visual">
-				<ThreeScene open={threeOpen} spin={threeSpin} reveal={intro} />
+			<div class="screen" style="opacity:{0.4 + intro * 0.6}">
+				<div class="screen__top">
+					<span class="cam"></span>
+					<span class="screen__title">3DS · SYSTEM</span>
+					<span class="led"></span>
+				</div>
+				<div class="screen__panel">
+					<ThreeScene open={threeOpen} spin={threeSpin} reveal={intro} />
+				</div>
 			</div>
 		</div>
 
 		<div class="hint" style="opacity:{scrollHint}" aria-hidden="true">
-			<span>scroll</span>
+			<span class="pixel">scroll</span>
 			<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg>
 		</div>
 
 		<a
-			class="next"
+			class="next pixel"
 			href="#projects"
 			style="opacity:{projectsHint}; pointer-events:{projectsHint > 0.6 ? 'auto' : 'none'}"
 		>
-			projects ↓
+			projects ▸
 		</a>
 	</div>
 </section>
@@ -114,19 +117,6 @@
 		overflow: hidden;
 	}
 
-	.glow {
-		position: absolute;
-		inset: -20% -10% auto auto;
-		width: min(70vw, 720px);
-		aspect-ratio: 1;
-		background:
-			radial-gradient(circle at 65% 35%, color-mix(in srgb, var(--ctp-mauve) 38%, transparent), transparent 60%),
-			radial-gradient(circle at 35% 70%, color-mix(in srgb, var(--ctp-blue) 30%, transparent), transparent 60%);
-		filter: blur(40px);
-		pointer-events: none;
-		z-index: 0;
-	}
-
 	.inner {
 		position: relative;
 		z-index: 1;
@@ -135,11 +125,9 @@
 		padding-inline: var(--gutter);
 		display: grid;
 		grid-template-columns: 1fr;
-		gap: clamp(1rem, 4vw, 3rem);
+		gap: clamp(1.25rem, 4vw, 3rem);
 		align-items: center;
 	}
-
-	/* allow grid tracks to shrink below content size (prevents mobile overflow) */
 	.inner > * {
 		min-width: 0;
 	}
@@ -147,14 +135,23 @@
 	.copy {
 		display: flex;
 		flex-direction: column;
-		gap: clamp(0.9rem, 3vw, 1.25rem);
+		gap: clamp(0.9rem, 3vw, 1.3rem);
 		max-width: 38rem;
 	}
 
 	h1 {
-		font-size: clamp(1.95rem, 8vw, 4.4rem);
-		font-weight: 800;
+		font-size: clamp(2rem, 8vw, 4.4rem);
+		font-weight: 700;
 		overflow-wrap: break-word;
+	}
+	.w1 {
+		color: var(--ctp-mauve);
+	}
+	.w2 {
+		color: var(--ctp-blue);
+	}
+	.w3 {
+		color: var(--ctp-teal);
 	}
 
 	.lede {
@@ -164,40 +161,83 @@
 	}
 
 	.termwrap {
-		margin-top: 0.5rem;
+		margin-top: 0.3rem;
 		transition: opacity 0.2s linear;
 	}
 
-	.visual {
+	/* ---- the "console screen" holding the 3D model ---- */
+	.screen {
+		order: -1;
+		display: flex;
+		flex-direction: column;
+		background: var(--bg-alt);
+		border: var(--border-w) solid var(--edge);
+		border-radius: var(--radius-lg);
+		box-shadow: 0 var(--lift) 0 0 var(--edge);
+		overflow: hidden;
+		transition: opacity 0.3s linear;
+	}
+
+	.screen__top {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.55rem 0.9rem;
+		background: var(--bg-crust);
+		border-bottom: var(--border-w) solid var(--edge);
+	}
+	.cam {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--surface-2);
+		box-shadow: 0 0 0 2px var(--bg-alt);
+	}
+	.screen__title {
+		font-family: var(--font-pixel);
+		font-size: 0.55rem;
+		color: var(--faint);
+	}
+	.led {
+		margin-left: auto;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--ctp-green);
+		box-shadow: 0 0 8px var(--ctp-green);
+	}
+
+	.screen__panel {
 		position: relative;
 		width: 100%;
-		height: clamp(210px, 30svh, 460px);
-		order: -1; /* visual above copy on mobile */
+		height: clamp(220px, 32svh, 460px);
+		background:
+			radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
+			var(--bg-crust);
 	}
 
 	.hint {
 		position: absolute;
-		bottom: clamp(1rem, 4vh, 2.2rem);
+		bottom: clamp(0.9rem, 4vh, 2rem);
 		left: 50%;
 		translate: -50% 0;
 		z-index: 2;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 0.25rem;
-		font-family: var(--font-mono);
-		font-size: 0.74rem;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
+		gap: 0.3rem;
 		color: var(--faint);
 	}
-
+	.hint .pixel {
+		font-size: 0.55rem;
+		color: var(--faint);
+	}
 	.hint svg {
-		width: 20px;
-		height: 20px;
+		width: 18px;
+		height: 18px;
 		fill: none;
 		stroke: currentColor;
-		stroke-width: 2;
+		stroke-width: 2.5;
 		stroke-linecap: round;
 		stroke-linejoin: round;
 		animation: bob 1.8s var(--ease) infinite;
@@ -205,14 +245,11 @@
 
 	.next {
 		position: absolute;
-		bottom: clamp(1rem, 4vh, 2.2rem);
+		bottom: clamp(0.9rem, 4vh, 2rem);
 		right: var(--gutter);
 		z-index: 2;
-		font-family: var(--font-mono);
-		font-size: 0.82rem;
+		font-size: 0.6rem;
 		color: var(--accent);
-		border-bottom: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
-		padding-bottom: 2px;
 		transition: opacity 0.3s var(--ease);
 	}
 
@@ -228,18 +265,24 @@
 
 	@media (min-width: 860px) {
 		.inner {
-			grid-template-columns: 1.05fr 0.95fr;
+			grid-template-columns: 1.02fr 0.98fr;
 			gap: 2.5rem;
 		}
-		.visual {
+		.screen {
 			order: 0;
-			height: min(70svh, 560px);
+		}
+		.screen__panel {
+			height: min(64svh, 520px);
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		.hint svg {
 			animation: none;
+		}
+		.led,
+		.cam {
+			box-shadow: none;
 		}
 	}
 </style>

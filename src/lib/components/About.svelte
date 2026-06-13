@@ -6,14 +6,15 @@
 <section id="about" class="section">
 	<div class="container grid">
 		<div class="lead">
-			<p class="eyebrow" use:reveal>about</p>
+			<p class="eyebrow" use:reveal>profile</p>
 			<p class="intro" use:reveal={{ delay: 60 }}>{about.intro}</p>
 		</div>
 
-		<ol class="timeline" aria-label="Background">
+		<ol class="log" aria-label="Background">
 			{#each about.timeline as item, i}
 				<li use:reveal={{ delay: i * 90 }}>
-					<span class="when">{item.when}</span>
+					<span class="marker" aria-hidden="true"></span>
+					<span class="when pixel">{item.when}</span>
 					<div class="entry">
 						<h3>{item.title}</h3>
 						<p class="where">{item.where}</p>
@@ -33,59 +34,62 @@
 	}
 
 	.intro {
-		font-size: clamp(1.2rem, 3vw, 1.6rem);
+		font-family: var(--font-display);
+		font-size: clamp(1.2rem, 3vw, 1.55rem);
+		font-weight: 500;
 		line-height: 1.5;
-		letter-spacing: -0.01em;
 		max-width: 30rem;
 	}
 
-	.timeline {
+	.log {
 		list-style: none;
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 1.75rem;
+		gap: 1.6rem;
 	}
 
-	.timeline li {
-		display: grid;
-		grid-template-columns: 5.5rem 1fr;
-		gap: 1rem;
+	.log li {
 		position: relative;
-		padding-left: 1.25rem;
-		border-left: 2px solid var(--border);
-	}
-
-	.timeline li::before {
-		content: '';
-		position: absolute;
-		left: -7px;
-		top: 0.35rem;
-		width: 12px;
-		height: 12px;
-		border-radius: 50%;
-		background: var(--accent);
-		box-shadow: 0 0 0 4px var(--bg);
+		display: grid;
+		grid-template-columns: auto 1fr;
+		grid-template-areas: 'when when' 'marker entry';
+		gap: 0.35rem 1rem;
+		padding-left: 1.4rem;
+		border-left: var(--border-w) dashed var(--border);
 	}
 
 	.when {
-		font-family: var(--font-mono);
-		font-size: 0.78rem;
+		grid-area: when;
+		font-size: 0.5rem;
 		color: var(--accent);
-		padding-top: 0.15rem;
 	}
 
+	.marker {
+		grid-area: marker;
+		width: 14px;
+		height: 14px;
+		border-radius: 4px;
+		background: var(--accent);
+		border: 2px solid var(--edge);
+		box-shadow: 0 0 0 4px var(--bg);
+		margin-left: calc(-1.4rem - 9px);
+		margin-top: 0.3rem;
+	}
+
+	.entry {
+		grid-area: entry;
+		margin-left: -0.6rem;
+	}
 	.entry h3 {
-		font-size: 1.05rem;
+		font-size: 1.1rem;
 		font-weight: 700;
 	}
-
 	.where {
-		color: var(--subtext1, var(--muted));
+		color: var(--subtext1);
 		font-size: 0.9rem;
 		margin-top: 0.1rem;
 	}
-
 	.detail {
 		color: var(--muted);
 		font-size: 0.88rem;
@@ -99,7 +103,7 @@
 		}
 		.intro {
 			position: sticky;
-			top: 6rem;
+			top: 6.5rem;
 		}
 	}
 </style>

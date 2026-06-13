@@ -47,11 +47,10 @@
 <style>
 	.term {
 		width: min(440px, 100%);
-		border-radius: var(--radius-sm);
-		background: color-mix(in srgb, var(--bg-crust) 88%, transparent);
-		border: 1px solid var(--border);
-		box-shadow: var(--shadow-md);
-		backdrop-filter: blur(8px);
+		border-radius: var(--radius);
+		background: var(--bg-crust);
+		border: var(--border-w) solid var(--edge);
+		box-shadow: 0 var(--lift) 0 0 var(--edge);
 		overflow: hidden;
 		font-family: var(--font-mono);
 	}
@@ -61,8 +60,8 @@
 		align-items: center;
 		gap: 7px;
 		padding: 0.6rem 0.85rem;
-		background: color-mix(in srgb, var(--surface) 60%, transparent);
-		border-bottom: 1px solid var(--border);
+		background: var(--bg-alt);
+		border-bottom: var(--border-w) solid var(--edge);
 	}
 
 	.dot {
@@ -82,7 +81,8 @@
 
 	.title {
 		margin-left: auto;
-		font-size: 0.72rem;
+		font-family: var(--font-pixel);
+		font-size: 0.5rem;
 		color: var(--faint);
 	}
 

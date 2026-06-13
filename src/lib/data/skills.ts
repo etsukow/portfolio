@@ -41,24 +41,25 @@ export interface TimelineEntry {
 
 export const about = {
 	intro:
-		"I'm a software engineer in training at Polytech Nantes (AI & data track), currently an apprentice. I like building end-to-end: from self-hosted AI systems and real-time apps to 3D on the web and the CI/CD that ships them.",
+		"I'm a software-engineering apprentice at Lemerpax through Polytech Nantes (IDIA — AI & data track), currently on a summer research internship at KU Leuven. I like building end-to-end: from data & ML tooling to real-time apps, 3D on the web, and the CI/CD that ships them.",
 	timeline: [
 		{
-			when: 'now',
-			title: 'Software engineering apprentice',
-			where: 'Polytech Nantes — IDIA (AI & Data)',
-			detail: 'Full-stack & ML engineering, alternating between coursework and company work.'
+			when: 'Jun–Aug 2026',
+			title: 'Research internship',
+			where: 'KU Leuven, Belgium',
+			detail:
+				'Summer internship (while still on my apprenticeship) — building AI-assisted tooling such as SensorBuddy.'
 		},
 		{
-			when: '2024',
-			title: 'Erasmus exchange',
-			where: 'KU Leuven, Belgium',
-			detail: 'Research-flavoured semester — built SensorBuddy, an AI-assisted extraction tool.'
+			when: '2024–2027',
+			title: 'Software engineering apprentice',
+			where: 'Lemerpax × Polytech Nantes (IDIA)',
+			detail: 'Work-study in the AI & data engineering track — full-stack and ML, school and company.'
 		},
 		{
 			when: 'always',
 			title: 'Tinkerer',
-			where: 'Nintendo 3DS homebrew, Discord bots, game dev',
+			where: 'Nintendo 3DS homebrew · Discord bots · game dev',
 			detail: 'Side projects are where I learn the low-level and the fun stuff.'
 		}
 	] as TimelineEntry[]
