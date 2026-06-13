@@ -88,7 +88,7 @@
 	<section bind:this={introEl} class="intro">
 		<div bind:this={stageEl} class="stage">
 			<div class="canvas" aria-hidden="true">
-				<ThreeScene {open} {zoom} spin={0} reveal={1} />
+				<ThreeScene {open} {zoom} reveal={1} />
 			</div>
 			<button
 				class="start"

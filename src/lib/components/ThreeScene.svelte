@@ -2,10 +2,8 @@
 	import { onMount } from 'svelte';
 
 	interface Props {
-		/** Lid open amount, 0 (closed) → 1 (fully open). Drives the GLTF clip. */
+		/** Lid open amount, 0 (closed) → 1 (fully open). Rotates the lid at its hinge. */
 		open?: number;
-		/** Scroll-driven spin amount, 0 → 1. */
-		spin?: number;
 		/** Reveal amount, 0 (hidden) → 1 (shown). Fades/lifts the canvas. */
 		reveal?: number;
 		/** Zoom-in amount, 0 (framed) → 1 (pushed in close, device overflows). */
@@ -13,7 +11,7 @@
 		modelUrl?: string;
 	}
 
-	let { open = 0, spin = 0, reveal = 1, zoom = 0, modelUrl = '/models/3ds.glb' }: Props = $props();
+	let { open = 0, reveal = 1, zoom = 0, modelUrl = '/models/3ds.glb' }: Props = $props();
 
 	let host: HTMLDivElement;
 	let loaded = $state(false);
@@ -21,12 +19,10 @@
 
 	// Targets read by the render loop (lerped for smoothness).
 	let openTarget = 0;
-	let spinTarget = 0;
 	let zoomTarget = 0;
 
 	$effect(() => {
 		openTarget = Math.max(0, Math.min(1, open));
-		spinTarget = Math.max(0, Math.min(1, spin));
 		zoomTarget = Math.max(0, Math.min(1, zoom));
 	});
 
@@ -78,8 +74,6 @@
 				const model = new THREE.Group();
 				scene.add(model);
 				let baseY = 0;
-				let mixer: import('three').AnimationMixer | null = null;
-				let clipDuration = 0;
 
 				const loader = new GLTFLoader();
 				const gltf = await loader.loadAsync(modelUrl);
@@ -96,7 +90,10 @@
 				const scale = 2.6 / maxDim;
 				root.scale.setScalar(scale);
 				model.add(root);
-				model.rotation.y = -0.45;
+
+				// The lid (top half) — its rest pose is open (rotated 90° at the hinge).
+				// We drive it manually because the GLB's clip doesn't move it.
+				const lid = root.getObjectByName('Top004');
 
 				// Rotation-invariant bounding sphere → used to frame the camera so the
 				// model always fits the canvas (whatever the aspect) and never clips.
@@ -105,16 +102,9 @@
 					.getBoundingSphere(new THREE.Sphere())
 					.radius;
 
-				if (gltf.animations.length > 0) {
-					mixer = new THREE.AnimationMixer(root);
-					const clip = gltf.animations[0];
-					const action = mixer.clipAction(clip);
-					action.play();
-					action.paused = true;
-					clipDuration = clip.duration;
-				}
-
-				const SPIN_RANGE = Math.PI * 1.6;
+				const LID_CLOSED = Math.PI; // 180° = clamshell shut (flat)
+				const LID_OPEN = Math.PI / 2; // 90° = open, both screens facing front
+				const BASE_YAW = -0.4;
 				let baseDist = 5;
 
 				function fit() {
@@ -150,9 +140,8 @@
 
 				const clock = new THREE.Clock();
 				let curOpen = 0;
-				let curSpin = 0;
 				let curZoom = 0;
-				let idleRot = 0;
+				let swayT = 0;
 				let raf = 0;
 
 				function frame() {
@@ -165,14 +154,16 @@
 					const dt = Math.min(clock.getDelta(), 0.05);
 					const k = Math.min(1, dt * 7);
 					curOpen += (openTarget - curOpen) * k;
-					curSpin += (spinTarget - curSpin) * k;
 					curZoom += (zoomTarget - curZoom) * k;
+					swayT += dt;
 
-					if (mixer && clipDuration) mixer.setTime(curOpen * clipDuration);
-					if (!reduce) idleRot += dt * 0.18;
+					// lid: closed (180°, flat) → open (90°, perpendicular)
+					if (lid) lid.rotation.x = LID_CLOSED + curOpen * (LID_OPEN - LID_CLOSED);
 
-					model.rotation.y = -0.45 + curSpin * SPIN_RANGE + (reduce ? 0 : idleRot);
-					model.position.y = baseY + (reduce ? 0 : Math.sin(idleRot * 1.4) * 0.05);
+					// gentle sway that settles to dead-front as it opens — never a full spin
+					const sway = reduce ? 0 : Math.sin(swayT * 0.5) * 0.16;
+					model.rotation.y = (BASE_YAW + sway) * (1 - curOpen);
+					model.position.y = baseY + (reduce ? 0 : Math.sin(swayT * 0.9) * 0.04 * (1 - curOpen));
 					camera.position.z = baseDist * (1 - 0.55 * curZoom);
 
 					renderer.render(scene, camera);
