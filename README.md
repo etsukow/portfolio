@@ -1,10 +1,11 @@
 # etsu — portfolio
 
-Personal portfolio of **Julien "etsu" Evrard**. A single-page, fully static site
-with a **retro-handheld / console** look: a cinematic scroll-driven hero (a Nintendo
-3DS rendered in WebGL + a typing `whoami` terminal), launchable project "app tiles",
-chunky tactile UI and subtle CRT scanlines — themed with **Catppuccin** (Mocha by
-default, Latte light mode).
+Personal portfolio of **Julien "etsu" Evrard** — and the whole site **is a Nintendo
+3DS**. You land on the bare console (WebGL); scrolling (or "press start") opens the
+lid and zooms in until it fills the screen, then hands off to a CSS **dual-screen
+"etsuOS"**: the bottom touch screen is the app menu, the top screen shows the
+selected content. Fully static, **Catppuccin** themed (Mocha default, Latte light),
+mobile-first, with a reduced-motion / keyboard-accessible fallback.
 
 ## Stack
 

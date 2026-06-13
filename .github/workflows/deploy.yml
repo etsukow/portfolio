@@ -54,22 +54,19 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # --- Optional: SSH into your server and redeploy after a successful push ---
-  # Enable by adding repo secrets: SSH_HOST, SSH_USER, SSH_KEY (and a compose
-  # file on the server). Then uncomment this job.
-  #
-  # deploy:
-  #   needs: build-and-push
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/main'
-  #   steps:
-  #     - name: Deploy over SSH
-  #       uses: appleboy/ssh-action@v1
-  #       with:
-  #         host: ${{ secrets.SSH_HOST }}
-  #         username: ${{ secrets.SSH_USER }}
-  #         key: ${{ secrets.SSH_KEY }}
-  #         script: |
-  #           cd /opt/portfolio
-  #           docker compose pull
-  #           docker compose up -d
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ 22 }}
+          script: |
+            cd /opt/portfolio
+            docker compose pull
+            docker compose up -d --remove-orphans

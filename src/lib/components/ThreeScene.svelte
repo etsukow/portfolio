@@ -8,10 +8,12 @@
 		spin?: number;
 		/** Reveal amount, 0 (hidden) → 1 (shown). Fades/lifts the canvas. */
 		reveal?: number;
+		/** Zoom-in amount, 0 (framed) → 1 (pushed in close, device overflows). */
+		zoom?: number;
 		modelUrl?: string;
 	}
 
-	let { open = 0, spin = 0, reveal = 1, modelUrl = '/models/3ds.glb' }: Props = $props();
+	let { open = 0, spin = 0, reveal = 1, zoom = 0, modelUrl = '/models/3ds.glb' }: Props = $props();
 
 	let host: HTMLDivElement;
 	let loaded = $state(false);
@@ -20,10 +22,12 @@
 	// Targets read by the render loop (lerped for smoothness).
 	let openTarget = 0;
 	let spinTarget = 0;
+	let zoomTarget = 0;
 
 	$effect(() => {
 		openTarget = Math.max(0, Math.min(1, open));
 		spinTarget = Math.max(0, Math.min(1, spin));
+		zoomTarget = Math.max(0, Math.min(1, zoom));
 	});
 
 	$effect(() => {
@@ -111,6 +115,7 @@
 				}
 
 				const SPIN_RANGE = Math.PI * 1.6;
+				let baseDist = 5;
 
 				function fit() {
 					const w = host.clientWidth || 1;
@@ -121,8 +126,8 @@
 					// vertical / horizontal FOV, plus a small margin.
 					const vFov = (camera.fov * Math.PI) / 180;
 					const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-					const dist = (fitRadius * 1.12) / Math.sin(Math.min(vFov, hFov) / 2);
-					camera.position.set(0, 0.1, dist);
+					baseDist = (fitRadius * 1.12) / Math.sin(Math.min(vFov, hFov) / 2);
+					camera.position.set(0, 0.1, baseDist);
 					camera.lookAt(0, 0, 0);
 					camera.updateProjectionMatrix();
 				}
@@ -146,6 +151,7 @@
 				const clock = new THREE.Clock();
 				let curOpen = 0;
 				let curSpin = 0;
+				let curZoom = 0;
 				let idleRot = 0;
 				let raf = 0;
 
@@ -160,12 +166,14 @@
 					const k = Math.min(1, dt * 7);
 					curOpen += (openTarget - curOpen) * k;
 					curSpin += (spinTarget - curSpin) * k;
+					curZoom += (zoomTarget - curZoom) * k;
 
 					if (mixer && clipDuration) mixer.setTime(curOpen * clipDuration);
 					if (!reduce) idleRot += dt * 0.18;
 
 					model.rotation.y = -0.45 + curSpin * SPIN_RANGE + (reduce ? 0 : idleRot);
 					model.position.y = baseY + (reduce ? 0 : Math.sin(idleRot * 1.4) * 0.05);
+					camera.position.z = baseDist * (1 - 0.55 * curZoom);
 
 					renderer.render(scene, camera);
 				}

@@ -1,14 +1,10 @@
 <script lang="ts">
-	import Hero from '$lib/components/Hero.svelte';
-	import About from '$lib/components/About.svelte';
-	import Projects from '$lib/components/Projects.svelte';
-	import Skills from '$lib/components/Skills.svelte';
-	import Contact from '$lib/components/Contact.svelte';
+	import Console from '$lib/components/Console.svelte';
 
 	const title = 'Julien Evrard — Software Engineer';
 	const description =
-		'Julien "etsu" Evrard — software engineer building AI workspaces, real-time apps, 3D on the web, and the pipelines that ship them.';
-	const url = 'https://etsu.dev';
+		'Julien "etsu" Evrard — software engineer building data & ML tooling, real-time apps, 3D on the web, and the pipelines that ship them. A portfolio that runs like a Nintendo 3DS.';
+	const url = 'https://etsukow.com';
 </script>
 
 <svelte:head>
@@ -28,8 +24,4 @@
 	<link rel="canonical" href={url} />
 </svelte:head>
 
-<Hero />
-<About />
-<Projects />
-<Skills />
-<Contact />
+<Console />

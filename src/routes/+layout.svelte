@@ -14,7 +14,6 @@
 	import { onMount } from 'svelte';
 	import { initSmoothScroll } from '$lib/scroll/smooth';
 	import Navbar from '$lib/components/Navbar.svelte';
-	import Footer from '$lib/components/Footer.svelte';
 
 	let { children } = $props();
 
@@ -26,4 +25,3 @@
 <main>
 	{@render children()}
 </main>
-<Footer />
