@@ -112,8 +112,8 @@ export default function Page() {
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
-                  ['linear-gradient(135deg,#89b4fa,#74c7ec)', 'Synthwave & retrowave', 'for the late-night refactors', '~ on loop', 'hov-bd-blue'],
-                  ['linear-gradient(135deg,#cba6f7,#f5c2e7)', 'Anime & game OSTs', '3DS soundtracks, mostly', '~ comfort', 'hov-bd-mauve'],
+                  ['linear-gradient(135deg,#89b4fa,#74c7ec)', 'French Rap', 'for the late-night refactors', '~ on loop', 'hov-bd-blue'],
+                  ['linear-gradient(135deg,#cba6f7,#f5c2e7)', 'Pop', 'for everything in between', '~ comfort', 'hov-bd-mauve'],
                   ['linear-gradient(135deg,#94e2d5,#a6e3a1)', 'Reading: webtoons & manhwa', 'the screen-off ritual', '📖', 'hov-bd-teal'],
                 ].map(([bg, t, s, meta, hov]) => (
                   <div key={t} className={hov} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 16px', border: '1px solid #313244', borderRadius: 12, background: 'rgba(30,30,46,.5)' }}>
@@ -126,7 +126,6 @@ export default function Page() {
                   </div>
                 ))}
               </div>
-              <p style={{ fontFamily: mono, fontSize: 11, color: '#585b70', margin: '16px 0 0' }}>// edit these to your real rotation anytime</p>
             </div>
           </div>
         </section>
