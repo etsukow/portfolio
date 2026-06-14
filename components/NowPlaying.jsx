@@ -3,83 +3,51 @@
 import { useEffect, useState } from 'react';
 
 /* ─────────────────────────────────────────────────────────────────────────
- *  "Now playing" for the spinning disc.
+ *  Last.fm "now playing" for the spinning disc.
  *
- *  Primary source: ListenBrainz (open, no API key for reads — just a username).
- *  Fallback: Last.fm (kept so the display never goes blank during the switch).
+ *  Setup (one-time):
+ *   1. Scrobble Apple Music → Last.fm (e.g. bijou.fm / Finale on iOS).
+ *   2. Create a read API key: https://www.last.fm/api/account/create
+ *   3. Add it as the GitHub Actions *Secret* LASTFM_API_KEY, and your username
+ *      as the *Variable* LASTFM_USER — both baked into the build
+ *      (deploy.yml → Dockerfile → NEXT_PUBLIC_*).
  *
- *  Setup:
- *   • ListenBrainz: create an account, scrobble Apple Music to it (Marvis Pro on
- *     iOS, or Cider / web-scrobbler on desktop), then add a GitHub Actions
- *     *Variable* LISTENBRAINZ_USER. No key/secret needed.
- *
- *  Values are baked at build time (deploy.yml → Dockerfile → NEXT_PUBLIC_*).
- *  When nothing is configured this renders nothing and the disc looks default.
+ *  When unset, this renders nothing and the disc keeps its default look.
  * ──────────────────────────────────────────────────────────────────────── */
-const LB_USER = process.env.NEXT_PUBLIC_LISTENBRAINZ_USER || '';
-const LFM_USER = process.env.NEXT_PUBLIC_LASTFM_USER || '';
-const LFM_KEY = process.env.NEXT_PUBLIC_LASTFM_API_KEY || '';
+const LASTFM_USER = process.env.NEXT_PUBLIC_LASTFM_USER || '';
+const LASTFM_KEY = process.env.NEXT_PUBLIC_LASTFM_API_KEY || '';
 const POLL_MS = 20000;
 
 const mono = "'JetBrains Mono',monospace";
-
-async function fromListenBrainz() {
-  if (!LB_USER) return null;
-  const base = `https://api.listenbrainz.org/1/user/${encodeURIComponent(LB_USER)}`;
-  try {
-    let live = true;
-    let res = await fetch(`${base}/playing-now`);
-    let listen = (await res.json())?.payload?.listens?.[0];
-    if (!listen) {
-      live = false;
-      res = await fetch(`${base}/listens?count=1`);
-      listen = (await res.json())?.payload?.listens?.[0];
-    }
-    if (!listen) return null;
-    const m = listen.track_metadata || {};
-    const map = m.mbid_mapping || {};
-    const img = map.caa_release_mbid
-      ? `https://coverartarchive.org/release/${map.caa_release_mbid}/front-250`
-      : '';
-    return { name: m.track_name || '', artist: m.artist_name || '', live, img };
-  } catch {
-    return null;
-  }
-}
-
-async function fromLastfm() {
-  if (!LFM_USER || !LFM_KEY) return null;
-  try {
-    const url =
-      'https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks' +
-      `&user=${encodeURIComponent(LFM_USER)}&api_key=${LFM_KEY}&format=json&limit=1`;
-    const t = (await (await fetch(url)).json())?.recenttracks?.track?.[0];
-    if (!t) return null;
-    const img = (t.image || []).slice().reverse().find((i) => i['#text'])?.['#text'] || '';
-    return {
-      name: t.name || '',
-      artist: t.artist?.['#text'] || '',
-      live: t['@attr']?.nowplaying === 'true',
-      img,
-    };
-  } catch {
-    return null;
-  }
-}
 
 export default function NowPlaying() {
   const [track, setTrack] = useState(null);
 
   useEffect(() => {
-    if (!LB_USER && !(LFM_USER && LFM_KEY)) return;
+    if (!LASTFM_USER || !LASTFM_KEY) return;
     let alive = true;
 
     const load = async () => {
-      const t = (await fromListenBrainz()) || (await fromLastfm());
-      if (!t || !alive) return;
-      setTrack(t);
-      const label = document.getElementById('discLabel');
-      if (label && t.img) label.style.backgroundImage = `url('${t.img}')`;
+      try {
+        const url =
+          'https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks' +
+          `&user=${encodeURIComponent(LASTFM_USER)}&api_key=${LASTFM_KEY}&format=json&limit=1`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const t = data?.recenttracks?.track?.[0];
+        if (!t || !alive) return;
+        const img = (t.image || []).slice().reverse().find((i) => i['#text'])?.['#text'] || '';
+        setTrack({
+          name: t.name || '',
+          artist: t.artist?.['#text'] || '',
+          live: t['@attr']?.nowplaying === 'true',
+        });
+        // paint the cover onto the spinning vinyl label
+        const label = document.getElementById('discLabel');
+        if (label && img) label.style.backgroundImage = `url('${img}')`;
+      } catch {
+        /* network hiccup — keep the last state */
+      }
     };
 
     load();
