@@ -1,13 +1,7 @@
 node_modules
-build
-.svelte-kit
+.next
+out
 .git
 .github
-.vscode
-.DS_Store
-*.log
 npm-debug.log*
-Dockerfile
-.dockerignore
-docker-compose.yml
-README.md
+.DS_Store

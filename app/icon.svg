@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="8" fill="#11111b"/>
+  <!-- lamp glow -->
+  <circle cx="16" cy="4.2" r="3.2" fill="#89b4fa" opacity="0.35"/>
+  <circle cx="16" cy="4.2" r="1.1" fill="#cfe3ff"/>
+  <!-- roof tiers -->
+  <rect x="14.4" y="4.8" width="3.2" height="1.3" rx="0.3" fill="#2a4f9e"/>
+  <rect x="12.4" y="5.8" width="7.2" height="1.4" rx="0.3" fill="#34619c"/>
+  <rect x="9.4"  y="7"   width="13.2" height="2" rx="0.4" fill="#2a4f9e"/>
+  <!-- body -->
+  <rect x="10.5" y="8.8" width="11" height="18" rx="0.6" fill="#3a6fd0"/>
+  <!-- POLICE BOX sign -->
+  <rect x="10.9" y="9.2" width="10.2" height="1.9" fill="#0c1a3a"/>
+  <!-- windows -->
+  <rect x="12" y="11.8" width="8" height="3.8" fill="#bcd6ff"/>
+  <line x1="16" y1="11.8" x2="16" y2="15.6" stroke="#2a4f9e" stroke-width="0.7"/>
+  <line x1="12" y1="13.7" x2="20" y2="13.7" stroke="#2a4f9e" stroke-width="0.7"/>
+  <!-- door split -->
+  <line x1="16" y1="15.8" x2="16" y2="26" stroke="#1c2f5c" stroke-width="0.7"/>
+  <!-- base -->
+  <rect x="10" y="25.6" width="12" height="1.5" rx="0.3" fill="#2a4f9e"/>
+</svg>

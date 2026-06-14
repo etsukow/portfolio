@@ -1,33 +1,18 @@
-# Pull & run the published image on your own server:
-#   docker compose pull && docker compose up -d
+# Pull & run the published image on the server:
+#   cd /opt/portfolio && docker compose pull && docker compose up -d
 #
-# The image is built and pushed to GHCR by GitHub Actions on every push to main.
+# The image is built and pushed to GHCR by GitHub Actions on every push to main,
+# then this same file on the server (/opt/portfolio) pulls & restarts it.
+# The host nginx reverse-proxies etsukow.com -> 127.0.0.1:8080 (TLS via Certbot).
 services:
   portfolio:
     image: ghcr.io/etsukow/portfolio:latest
     container_name: portfolio
     restart: unless-stopped
     ports:
-      # host:container — change the host port to fit your setup / reverse proxy.
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
       interval: 30s
       timeout: 3s
       retries: 3
-
-    # --- Optional: expose through Traefik instead of a published port ---
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.portfolio.rule=Host(`etsu.dev`)"
-    #   - "traefik.http.routers.portfolio.entrypoints=websecure"
-    #   - "traefik.http.routers.portfolio.tls.certresolver=letsencrypt"
-    #   - "traefik.http.services.portfolio.loadbalancer.server.port=80"
-
-  # --- Optional: auto-pull new images and redeploy ---
-  # watchtower:
-  #   image: containrrr/watchtower
-  #   restart: unless-stopped
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   command: --interval 300 --cleanup portfolio

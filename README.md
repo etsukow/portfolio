@@ -1,61 +1,79 @@
-# etsu — portfolio
+# Julien Evrard — Portfolio (Next.js)
 
-Personal portfolio of **Julien "etsu" Evrard** — and the whole site **is a Nintendo
-3DS**. You land on the bare console (WebGL); scrolling (or "press start") opens the
-lid and zooms in until it fills the screen, then hands off to a CSS **dual-screen
-"etsuOS"**: the bottom touch screen is the app menu, the top screen shows the
-selected content. Fully static, **Catppuccin** themed (Mocha default, Latte light),
-mobile-first, with a reduced-motion / keyboard-accessible fallback.
+Implementation of the `Portfolio.dc.html` design handoff (Claude Design), built
+as a **Next.js 14** app (App Router) with the real `tardis_exterior_2005.glb`
+model loaded via Three.js.
 
 ## Stack
+- **Next.js 14** (App Router, React 18)
+- **three** `0.134.0` + `GLTFLoader` (matches the prototype's Three.js version)
+- No CSS framework — the prototype's exact inline styles are preserved; global
+  styles, keyframes and `:hover` states live in `app/globals.css`.
 
-- **[SvelteKit](https://svelte.dev/docs/kit) 2 + Svelte 5** (runes), TypeScript, Vite
-- **[Three.js](https://threejs.org/)** — the 3DS hero model (`/static/models/3ds.glb`)
-- **[GSAP ScrollTrigger](https://gsap.com/) + [Lenis](https://lenis.darkroom.engineering/)** — pinned hero timeline & smooth scrolling
-- **IntersectionObserver** reveal action for section animations
-- **Catppuccin** palette as CSS custom properties, switched via `[data-theme]`
-- Self-hosted fonts via `@fontsource` (Inter, Fredoka, JetBrains Mono, Press Start 2P)
-- Output: `@sveltejs/adapter-static` → prerendered, served by **nginx**
+## Structure
+```
+app/
+  layout.jsx        # root layout, metadata, fonts
+  page.jsx          # the page — static sections (server component)
+  globals.css       # base styles, keyframes, hover + reduced-motion rules
+components/
+  NavBar.jsx        # fixed nav + mobile burger / full-screen menu  (client)
+  SpaceBackground.jsx # star fields, planet, scroll parallax, work gallery (client)
+  Tardis.jsx        # the 3D GLB TARDIS on its scroll-driven waypoint path (client)
+  Demo.jsx          # interactive 3DS → pipeline → Discord mock (client)
+public/
+  tardis_exterior_2005.glb
+```
 
-Respects `prefers-reduced-motion` (the hero falls back to a static layout) and
-`prefers-color-scheme` for the initial theme.
+## What changed vs. the prototype
+- Dropped the Claude Design React runtime (`support.js`) for idiomatic Next.js
+  components; `sc-for` / `sc-if` / `{{ }}` became JSX + React state.
+- The prototype drew the TARDIS as a **procedural cube**. Here it's the real
+  **`tardis_exterior_2005.glb`**, auto-centred and scaled at load, driven along
+  the same six waypoints (hero → about → work → demo → music → contact) with
+  idle bob, yaw wobble and a pulsing roof lamp.
 
-## Develop
+## Improvements added
+- **Embedded live site demo** — the "Portfolios in production" card (`/003`) has a
+  ▶ Live demo that opens a browser-chrome modal embedding **farah.etsukow.com**
+  in an iframe (`components/LiveSiteDemo.jsx`, rendered through a portal so the
+  cards' `backdrop-filter` doesn't trap it). ⚠️ The live site sends
+  `X-Frame-Options: SAMEORIGIN`; the farah repo's `nginx.conf` has been updated to
+  use `Content-Security-Policy: frame-ancestors` allowing `*.etsukow.com` +
+  `localhost:3000`, so **the embed goes live once farah is redeployed**. Verified
+  end-to-end against a local build of farah.
+- **TARDIS favicon** — `app/icon.svg`, a blue police box (Next auto-registers it).
+- **Selected work trimmed** to three coordinates (Luma3DS, sae_go, Portfolios).
+- **Real 3DS in the live demo** — the demo uses the actual `3ds-open.png` render
+  from the original portfolio (`public/3ds-open.png`). The two grey screens are
+  live overlays (positioned from the image's measured screen rects): the **top
+  screen** shows NOW PLAYING, the **bottom touch screen** is the tappable
+  cartridge menu.
+- **Section ("screen") scrolling** — `scroll-snap-type: y mandatory` +
+  `scroll-snap-stop: always` make each section a full screen that snaps one at a
+  time. The WORK section is a single screen whose project cards live on a
+  horizontal snap rail; a wheel redirect (`SpaceBackground.jsx → onWheel`) turns
+  a vertical wheel into horizontal panning until the rail ends, then releases to
+  the next section. On phones (≤820px) snapping is disabled (content stacks
+  taller than a screen) and natural scrolling returns.
+- **Materialise intro** — the TARDIS flickers/fades in on load (very Doctor Who).
+- **Readability scrim** — a soft dark + blur halo (`#tardisScrim`) tracks the
+  TARDIS's projected on-screen position every frame (`Tardis.jsx → updateScrim`),
+  sitting between the 3D canvas and the content. Wherever the ship passes under
+  text, the bright box is dimmed and blurred so the copy stays legible — without
+  affecting the rest of the page.
+- **`prefers-reduced-motion`** — idle 3D drift and CSS animations are paused for
+  visitors who request reduced motion.
+- Console easter egg preserved from the original.
 
+Verified in Chrome across hero / about / work / demo / music / contact and at
+mobile width (burger menu, single-column, native horizontal card scroll); the
+production build (`next build`) prerenders cleanly with no console errors.
+
+## Run
 ```bash
 npm install
-npm run dev        # http://localhost:5173
-npm run check      # type-check
-npm run build      # static output → ./build
-npm run preview    # serve the production build
+npm run dev      # http://localhost:3000
+# or
+npm run build && npm start
 ```
-
-## Edit the content
-
-- Projects: [`src/lib/data/projects.ts`](src/lib/data/projects.ts)
-- Skills & bio: [`src/lib/data/skills.ts`](src/lib/data/skills.ts)
-- Theme tokens: [`src/app.css`](src/app.css)
-- 3D model: replace [`static/models/3ds.glb`](static/models/3ds.glb)
-
-## Docker
-
-Multi-stage build (Node build → nginx). Locally:
-
-```bash
-docker build -t portfolio .
-docker run -p 8080:80 portfolio   # http://localhost:8080
-```
-
-## CI/CD & deploy
-
-[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds the image and
-pushes it to **GHCR** (`ghcr.io/etsukow/portfolio`) on every push to `main` (and on
-`v*` tags). On your server:
-
-```bash
-docker compose pull && docker compose up -d
-```
-
-See [`docker-compose.yml`](docker-compose.yml) for a ready-to-use service (with
-optional Traefik labels and Watchtower auto-update). An optional SSH auto-deploy
-job is included (commented) in the workflow.
