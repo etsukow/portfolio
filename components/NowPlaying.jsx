@@ -8,12 +8,16 @@ import { useEffect, useState } from 'react';
  *  Setup (one-time):
  *   1. Scrobble Apple Music → Last.fm (e.g. Marvis Pro / Cider / Last.fm iOS).
  *   2. Create a read API key: https://www.last.fm/api/account/create
- *   3. Fill the two values below.
+ *   3. Add GitHub Actions repo *Variables* LASTFM_API_KEY and LASTFM_USER —
+ *      they're baked into the build (deploy.yml → Dockerfile → NEXT_PUBLIC_*).
  *
  *  When unset, this renders nothing and the disc keeps its default look.
  * ──────────────────────────────────────────────────────────────────────── */
-const LASTFM_USER = ''; // ← your Last.fm username
-const LASTFM_KEY = '';  // ← your Last.fm API key (read-only, fine to expose)
+// Injected at build time from GitHub Actions variables (see deploy.yml /
+// Dockerfile). LASTFM_API_KEY is the read API key; set a LASTFM_USER variable
+// too (or hardcode your username below).
+const LASTFM_USER = process.env.NEXT_PUBLIC_LASTFM_USER || '';
+const LASTFM_KEY = process.env.NEXT_PUBLIC_LASTFM_API_KEY || '';
 const POLL_MS = 20000;
 
 const mono = "'JetBrains Mono',monospace";

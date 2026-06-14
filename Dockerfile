@@ -8,6 +8,13 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+
+# Last.fm now-playing — injected at build time (NEXT_PUBLIC_* is inlined by Next)
+ARG LASTFM_API_KEY=""
+ARG LASTFM_USER=""
+ENV NEXT_PUBLIC_LASTFM_API_KEY=$LASTFM_API_KEY
+ENV NEXT_PUBLIC_LASTFM_USER=$LASTFM_USER
+
 RUN node node_modules/next/dist/bin/next build
 
 # ---- Serve with nginx ----
