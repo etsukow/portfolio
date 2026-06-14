@@ -9,9 +9,12 @@ RUN npm ci
 
 COPY . .
 
-# Last.fm now-playing — injected at build time (NEXT_PUBLIC_* is inlined by Next)
+# Now-playing — injected at build time (NEXT_PUBLIC_* is inlined by Next).
+# ListenBrainz is primary (no key); Last.fm kept as fallback during the switch.
+ARG LISTENBRAINZ_USER=""
 ARG LASTFM_API_KEY=""
 ARG LASTFM_USER=""
+ENV NEXT_PUBLIC_LISTENBRAINZ_USER=$LISTENBRAINZ_USER
 ENV NEXT_PUBLIC_LASTFM_API_KEY=$LASTFM_API_KEY
 ENV NEXT_PUBLIC_LASTFM_USER=$LASTFM_USER
 

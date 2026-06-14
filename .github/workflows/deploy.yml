@@ -52,6 +52,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
+            LISTENBRAINZ_USER=${{ vars.LISTENBRAINZ_USER }}
             LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY }}
             LASTFM_USER=${{ vars.LASTFM_USER }}
           cache-from: type=gha
