@@ -8,11 +8,15 @@
 html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
 
 section[data-screen-label] {
-  min-height: 100vh;
+  min-height: 100vh;        /* fallback */
+  min-height: 100dvh;       /* match the visible viewport on mobile */
   scroll-snap-align: start;
 }
 /* per-card snap points inside the work carousel */
 .work-snap { scroll-snap-align: start; }
+/* one viewport-unit tall, using the *visible* height on mobile (dvh) so the
+   carousel's tall section isn't oversized → no empty gap after the last card */
+.cv-unit { height: 100vh; height: 100dvh; }
 /* vertically centre the content of the standard screens */
 #about, #demo, #music, #contact {
   display: flex;

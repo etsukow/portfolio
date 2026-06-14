@@ -111,7 +111,7 @@ export default function WorkCarousel() {
   return (
     <section id="work" data-screen-label="Projects" ref={sectionRef} style={{ position: 'relative' }}>
       {/* pinned carousel UI */}
-      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 1 }}>
+      <div className="cv-unit" style={{ position: 'sticky', top: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 clamp(20px,6vw,90px) 26px', gap: 20 }}>
           <div>
             <div style={{ fontFamily: mono, fontSize: 12, letterSpacing: '.24em', color: '#74c7ec', textTransform: 'uppercase', marginBottom: 10 }}>02 — selected work</div>
@@ -183,9 +183,9 @@ export default function WorkCarousel() {
         </div>
       </div>
 
-      {/* per-card snap points (one extra viewport-height of scroll per card) */}
+      {/* per-card snap points (one visible-viewport-height of scroll per card) */}
       {Array.from({ length: N - 1 }).map((_, k) => (
-        <div key={k} aria-hidden="true" className="work-snap" style={{ height: '100vh' }} />
+        <div key={k} aria-hidden="true" className="work-snap cv-unit" />
       ))}
     </section>
   );
