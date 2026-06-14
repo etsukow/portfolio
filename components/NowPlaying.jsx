@@ -50,9 +50,35 @@ export default function NowPlaying() {
       }
     };
 
-    load();
-    const id = setInterval(load, POLL_MS);
-    return () => { alive = false; clearInterval(id); };
+    // Only poll when the tab is visible AND the music section is on screen.
+    const section = document.getElementById('music');
+    let onScreen = !section; // if section not found, gate on visibility only
+    let timer = null;
+    const sync = () => {
+      const should = alive && onScreen && document.visibilityState === 'visible';
+      if (should && !timer) {
+        load();                          // refresh immediately on (re)entry
+        timer = setInterval(load, POLL_MS);
+      } else if (!should && timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    };
+
+    const io = section
+      ? new IntersectionObserver((e) => { onScreen = e[0].isIntersecting; sync(); }, { threshold: 0 })
+      : null;
+    if (io) io.observe(section);
+
+    document.addEventListener('visibilitychange', sync);
+    sync();
+
+    return () => {
+      alive = false;
+      if (timer) clearInterval(timer);
+      if (io) io.disconnect();
+      document.removeEventListener('visibilitychange', sync);
+    };
   }, []);
 
   if (!track) return null;
