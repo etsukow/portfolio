@@ -26,8 +26,14 @@ export default function Tardis() {
     let base = { x: 2.6, y: 0, z: 0, ry: 0.5, s: 1 };
     let tFactor = { x: 1, s: 1 };
     let modelTopY = 1.5;
-    let pageScroll = 1;
     let disposed = false;
+
+    // Fixed-duration glide between section waypoints (instead of scroll-linked):
+    // scrolling to a section retargets the TARDIS, which then eases there over
+    // TWEEN_DUR seconds. The idle bob/rotation/lamp keep running on top.
+    const SECTION_IDS = ['top', 'about', 'work', 'demo', 'music', 'contact'];
+    const TWEEN_DUR = 0.8;
+    let targetIdx = 0, tweenFrom = { ...base }, tweenStart = 0, tweening = false;
 
     // "materialise" intro (TARDIS fades/flickers in on load) + a11y
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -138,21 +144,20 @@ export default function Tardis() {
       group.scale.set(s, s, s);
     }
 
+    // which section is currently in view → which waypoint to glide to
     function update(y) {
       if (!group) return;
-      pageScroll = (scrollEl ? (scrollEl.scrollHeight - scrollEl.clientHeight) : (document.documentElement.scrollHeight - window.innerHeight)) || 1;
-      const g = Math.max(0, Math.min(1, y / pageScroll));
-      const n = waypoints.length - 1, seg = g * n, i = Math.min(n - 1, Math.floor(seg));
-      let f = seg - i; f = f * f * (3 - 2 * f); // smoothstep
-      const a = waypoints[i], b = waypoints[i + 1];
-      base = {
-        x: a.x + (b.x - a.x) * f,
-        y: a.y + (b.y - a.y) * f,
-        z: a.z + (b.z - a.z) * f,
-        ry: a.ry + (b.ry - a.ry) * f,
-        s: a.s + (b.s - a.s) * f,
-      };
-      applyPose();
+      let idx = 0;
+      for (let i = 0; i < SECTION_IDS.length; i++) {
+        const el = document.getElementById(SECTION_IDS[i]);
+        if (el && el.offsetTop <= y + 4) idx = i;
+      }
+      if (idx !== targetIdx) {
+        tweenFrom = { ...base };
+        targetIdx = idx;
+        tweenStart = idleT;
+        tweening = true;
+      }
     }
 
     function resize() {
@@ -203,6 +208,23 @@ export default function Tardis() {
     const loop = () => {
       if (disposed || !renderer) return;
       idleT += 0.016;
+
+      // ease `base` toward the active section's waypoint over a fixed duration
+      const tgt = waypoints[targetIdx];
+      if (tweening) {
+        let p = (idleT - tweenStart) / TWEEN_DUR;
+        if (p >= 1) { p = 1; tweening = false; }
+        const e = p * p * (3 - 2 * p); // smoothstep
+        base = {
+          x: tweenFrom.x + (tgt.x - tweenFrom.x) * e,
+          y: tweenFrom.y + (tgt.y - tweenFrom.y) * e,
+          z: tweenFrom.z + (tgt.z - tweenFrom.z) * e,
+          ry: tweenFrom.ry + (tgt.ry - tweenFrom.ry) * e,
+          s: tweenFrom.s + (tgt.s - tweenFrom.s) * e,
+        };
+      } else {
+        base = tgt;
+      }
       applyPose();
 
       // materialise: opacity ramps 0→1 with a Doctor-Who-ish flicker
