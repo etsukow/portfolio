@@ -7,6 +7,7 @@ const mono = "'JetBrains Mono',monospace";
 const serif = "'Instrument Serif',serif";
 const CARD_W = 'min(520px, 84vw)';
 const CARD_H = 'min(470px, 72vh)';
+const EASE = 'transform .55s cubic-bezier(.4,0,.2,1)';
 
 const projects = [
   {
@@ -42,62 +43,63 @@ export default function WorkCarousel() {
   const sectionRef = useRef(null);
   const trackRef = useRef(null);
   const cardRefs = useRef([]);
-  const goToRef = useRef(() => {});
+  const centersRef = useRef([]);
+  const activeRef = useRef(0);
   const [active, setActive] = useState(0);
 
   useEffect(() => {
     const section = sectionRef.current, track = trackRef.current;
     if (!section || !track) return;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const st = { secTop: 0, secScroll: 1, centers: [] };
 
-    function layout() {
-      const vh = window.innerHeight;
-      const height = vh + vh * 0.9 * (N - 1); // scroll room to cycle every card
-      section.style.height = height + 'px';
-      st.secTop = section.offsetTop;
-      st.secScroll = Math.max(1, height - vh);
-      st.centers = cardRefs.current.map((c) => (c ? c.offsetLeft + c.offsetWidth / 2 : 0));
-      position();
-    }
-
-    function position() {
-      if (!st.centers.length) return;
-      const y = window.scrollY || window.pageYOffset;
-      let p = (y - st.secTop) / st.secScroll;
-      p = Math.max(0, Math.min(1, p));
-      const pos = p * (N - 1);
-      const i0 = Math.floor(pos), i1 = Math.min(N - 1, i0 + 1), f = pos - i0;
-      const center = st.centers[i0] + (st.centers[i1] - st.centers[i0]) * f;
-      track.style.transform = `translate3d(${(window.innerWidth / 2 - center).toFixed(1)}px,0,0)`;
+    function applyActive(idx) {
+      const centers = centersRef.current;
+      if (centers.length) {
+        track.style.transform = `translate3d(${(window.innerWidth / 2 - centers[idx]).toFixed(1)}px,0,0)`;
+      }
       cardRefs.current.forEach((c, i) => {
         if (!c) return;
-        const d = Math.min(1, Math.abs(i - pos));
-        c.style.transform = `scale(${(1 - d * 0.12).toFixed(3)})`;
-        c.style.opacity = (1 - d * 0.45).toFixed(3);
+        const d = Math.min(1, Math.abs(i - idx));
+        c.style.transform = `scale(${(1 - d * 0.1).toFixed(3)})`;
+        c.style.opacity = (1 - d * 0.5).toFixed(3);
       });
-      const idx = Math.round(pos);
-      setActive((prev) => (prev !== idx ? idx : prev));
     }
 
-    goToRef.current = (i) => {
-      const target = st.secTop + (Math.max(0, Math.min(N - 1, i)) / (N - 1)) * st.secScroll;
-      window.scrollTo({ top: target, behavior: reduce ? 'auto' : 'smooth' });
-    };
+    function layout() {
+      centersRef.current = cardRefs.current.map((c) => (c ? c.offsetLeft + c.offsetWidth / 2 : 0));
+      applyActive(activeRef.current);
+    }
 
-    const onScroll = () => position();
-    const onResize = () => layout();
+    function onScroll() {
+      const vh = window.innerHeight;
+      let idx = Math.round((window.scrollY - section.offsetTop) / vh);
+      idx = Math.max(0, Math.min(N - 1, idx));
+      if (idx !== activeRef.current) {
+        activeRef.current = idx;
+        setActive(idx);
+        applyActive(idx);
+      }
+    }
+
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', layout);
     const t1 = setTimeout(layout, 60);
     const t2 = setTimeout(layout, 400);
     layout();
+    onScroll();
     return () => {
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('resize', layout);
       clearTimeout(t1); clearTimeout(t2);
     };
   }, []);
+
+  const goTo = (i) => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const idx = Math.max(0, Math.min(N - 1, i));
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: section.offsetTop + idx * window.innerHeight, behavior: reduce ? 'auto' : 'smooth' });
+  };
 
   const arrowStyle = (disabled) => ({
     width: 40, height: 40, borderRadius: 999, cursor: disabled ? 'default' : 'pointer',
@@ -108,26 +110,27 @@ export default function WorkCarousel() {
 
   return (
     <section id="work" data-screen-label="Projects" ref={sectionRef} style={{ position: 'relative' }}>
-      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-
+      {/* pinned carousel UI */}
+      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 clamp(20px,6vw,90px) 26px', gap: 20 }}>
           <div>
             <div style={{ fontFamily: mono, fontSize: 12, letterSpacing: '.24em', color: '#74c7ec', textTransform: 'uppercase', marginBottom: 10 }}>02 — selected work</div>
             <h2 style={{ fontFamily: serif, fontWeight: 400, fontSize: 'clamp(28px,4vw,50px)', margin: 0, color: '#cdd6f4', lineHeight: 1 }}>Three coordinates.</h2>
           </div>
-          <div className="work-arrows" style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => goToRef.current(active - 1)} disabled={active === 0} aria-label="Previous project" className="hov-bd-blue" style={arrowStyle(active === 0)}>←</button>
-            <button onClick={() => goToRef.current(active + 1)} disabled={active === N - 1} aria-label="Next project" className="hov-bd-blue" style={arrowStyle(active === N - 1)}>→</button>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => goTo(active - 1)} disabled={active === 0} aria-label="Previous project" className="hov-bd-blue" style={arrowStyle(active === 0)}>←</button>
+            <button onClick={() => goTo(active + 1)} disabled={active === N - 1} aria-label="Next project" className="hov-bd-blue" style={arrowStyle(active === N - 1)}>→</button>
           </div>
         </div>
 
-        <div ref={trackRef} style={{ display: 'flex', gap: 'clamp(20px,2.4vw,34px)', alignItems: 'center', willChange: 'transform' }}>
+        <div ref={trackRef} style={{ display: 'flex', gap: 'clamp(20px,2.4vw,34px)', alignItems: 'center', willChange: 'transform', transition: EASE }}>
           {projects.map((p, i) => (
             <article
               key={p.title}
               ref={(el) => { cardRefs.current[i] = el; }}
               style={{
                 flex: '0 0 ' + CARD_W, height: CARD_H, transformOrigin: 'center center',
+                transition: EASE + ', opacity .55s ease',
                 border: '1px solid #313244', borderRadius: 20,
                 background: 'linear-gradient(165deg,rgba(30,30,46,.92),rgba(24,24,37,.92))',
                 backdropFilter: 'blur(6px)', padding: 28, display: 'flex', flexDirection: 'column',
@@ -172,14 +175,18 @@ export default function WorkCarousel() {
           {projects.map((_, i) => (
             <button
               key={i}
-              onClick={() => goToRef.current(i)}
+              onClick={() => goTo(i)}
               aria-label={`Go to project ${i + 1}`}
               style={{ width: i === active ? 24 : 8, height: 8, borderRadius: 999, border: 'none', padding: 0, cursor: 'pointer', background: i === active ? '#89b4fa' : '#45475a', transition: 'all .3s ease' }}
             />
           ))}
         </div>
-
       </div>
+
+      {/* per-card snap points (one extra viewport-height of scroll per card) */}
+      {Array.from({ length: N - 1 }).map((_, k) => (
+        <div key={k} aria-hidden="true" className="work-snap" style={{ height: '100vh' }} />
+      ))}
     </section>
   );
 }

@@ -1,15 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 * { box-sizing: border-box; }
-/* Gentle proximity snap — settles near a section without forcing each gesture,
-   so scrolling feels smooth rather than "clicky". The WORK section is a tall
-   scroll-driven carousel; its only snap point is its top. */
-html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+/* Section scrolling: one step per gesture (mandatory), but no forced stop so
+   momentum stays smooth. `scroll-behavior: smooth` animates each snap. The WORK
+   section is tall with internal per-card snap points (see WorkCarousel), so a
+   scroll step advances one carousel card just like it advances one section. */
+html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
 
 section[data-screen-label] {
   min-height: 100vh;
   scroll-snap-align: start;
 }
+/* per-card snap points inside the work carousel */
+.work-snap { scroll-snap-align: start; }
 /* vertically centre the content of the standard screens */
 #about, #demo, #music, #contact {
   display: flex;
