@@ -3,6 +3,7 @@ import SpaceBackground from '@/components/SpaceBackground';
 import Tardis from '@/components/Tardis';
 import Demo from '@/components/Demo';
 import WorkCarousel from '@/components/WorkCarousel';
+import NowPlaying from '@/components/NowPlaying';
 
 const mono = "'JetBrains Mono',monospace";
 const serif = "'Instrument Serif',serif";
@@ -93,7 +94,7 @@ export default function Page() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 26 }}>
               <div style={{ position: 'relative', width: 'min(280px,72vw)', aspectRatio: '1' }}>
                 <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'repeating-radial-gradient(circle at center,#11111b 0 2px,#1a1a28 2px 4px)', boxShadow: '0 24px 50px rgba(0,0,0,.55), inset 0 0 60px rgba(0,0,0,.6)', animation: 'spin 8s linear infinite', border: '1px solid #313244' }}>
-                  <div style={{ position: 'absolute', inset: '34%', borderRadius: '50%', background: 'radial-gradient(circle,#cba6f7,#89b4fa)', boxShadow: '0 0 24px rgba(137,180,250,.5)' }} />
+                  <div id="discLabel" style={{ position: 'absolute', inset: '34%', borderRadius: '50%', background: 'radial-gradient(circle,#cba6f7,#89b4fa)', backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: '0 0 24px rgba(137,180,250,.5)' }} />
                   <div style={{ position: 'absolute', left: '50%', top: '50%', width: 8, height: 8, borderRadius: '50%', background: '#11111b', transform: 'translate(-50%,-50%)' }} />
                 </div>
               </div>
@@ -102,6 +103,7 @@ export default function Page() {
                   <span key={i} style={{ width: 6, background: c, borderRadius: 3, height: '100%', transformOrigin: 'bottom', animation: `eq ${d} ease-in-out infinite ${delay}` }} />
                 ))}
               </div>
+              <NowPlaying />
             </div>
             <div>
               <h2 style={{ fontFamily: serif, fontWeight: 400, fontSize: 'clamp(32px,5vw,58px)', margin: '0 0 14px', color: '#cdd6f4', lineHeight: 1.05 }}>
