@@ -1,13 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+/* Gentle proximity snap — settles near a section without forcing each gesture,
+   so scrolling feels smooth rather than "clicky". The WORK section is a tall
+   scroll-driven carousel; its only snap point is its top. */
+html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
 
-/* ---- section ("screen") scrolling: one section per scroll gesture ---- */
 section[data-screen-label] {
   min-height: 100vh;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 /* vertically centre the content of the standard screens */
 #about, #demo, #music, #contact {
@@ -15,27 +16,14 @@ section[data-screen-label] {
   flex-direction: column;
   justify-content: center;
 }
-/* WORK is one screen; its cards live on a horizontal snap rail */
-#work { height: 100vh; }
-#workSticky { position: static !important; height: 100vh !important; }
-#workTrack {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  transform: none !important;
-  scroll-behavior: auto;
-  scrollbar-width: none;        /* Firefox: hide bar */
-  -ms-overflow-style: none;     /* legacy Edge */
-}
-#workTrack::-webkit-scrollbar { width: 0; height: 0; display: none; } /* WebKit */
 
 /* On phones the single-column content is taller than a screen, so fall back to
-   natural scrolling (section snap only governs the desktop experience). */
+   natural scrolling (proximity snap only governs the desktop experience). The
+   work carousel keeps working everywhere — it is driven by vertical scroll. */
 @media (max-width: 820px) {
   html { scroll-snap-type: none; }
-  section[data-screen-label] { min-height: 0; scroll-snap-stop: normal; }
+  section[data-screen-label] { min-height: 0; }
   #about, #demo, #music, #contact { display: block; }
-  #work, #workSticky { height: auto !important; }
 }
 body {
   margin: 0;

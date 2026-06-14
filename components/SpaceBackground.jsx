@@ -65,40 +65,14 @@ export default function SpaceBackground() {
       if (pl) pl.style.transform = `translate3d(${y * -0.04}px,${y * -0.05}px,0)`;
     }
 
-    // ---- WORK rail: redirect vertical wheel to horizontal pan while the work
-    //      section is the active (snapped) screen ----
-    let workEl, trackEl;
-    function onWheel(e) {
-      workEl = workEl || q('#work');
-      trackEl = trackEl || q('#workTrack');
-      if (!workEl || !trackEl || mobile) return;
-      const r = workEl.getBoundingClientRect();
-      const active = r.top <= 2 && r.bottom >= window.innerHeight - 2;
-      if (!active) return;
-      // normalise wheel delta to pixels (some mice report lines/pages)
-      let dy = e.deltaY;
-      if (e.deltaMode === 1) dy *= 16;
-      else if (e.deltaMode === 2) dy *= window.innerHeight;
-      if (Math.abs(e.deltaX) > Math.abs(dy)) return; // genuine horizontal gesture
-      const maxLeft = trackEl.scrollWidth - trackEl.clientWidth;
-      const atStart = trackEl.scrollLeft <= 0;
-      const atEnd = trackEl.scrollLeft >= maxLeft - 1;
-      if ((dy > 0 && !atEnd) || (dy < 0 && !atStart)) {
-        trackEl.scrollLeft += dy; // free, 1:1 pan (no snap fighting it)
-        e.preventDefault(); // hold the page on this screen until the rail ends
-      }
-    }
-
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', layout);
-    window.addEventListener('wheel', onWheel, { passive: false });
     layout();
     onScroll();
 
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', layout);
-      window.removeEventListener('wheel', onWheel);
     };
   }, []);
 
