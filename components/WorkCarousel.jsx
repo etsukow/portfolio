@@ -51,6 +51,10 @@ export default function WorkCarousel() {
     const section = sectionRef.current, track = trackRef.current;
     if (!section || !track) return;
 
+    // scroll comes from the inner #scrollRoot (falls back to window)
+    const scrollEl = document.getElementById('scrollRoot');
+    const getY = () => (scrollEl ? scrollEl.scrollTop : (window.scrollY || window.pageYOffset || 0));
+
     function applyActive(idx) {
       const centers = centersRef.current;
       if (centers.length) {
@@ -71,7 +75,7 @@ export default function WorkCarousel() {
 
     function onScroll() {
       const vh = window.innerHeight;
-      let idx = Math.round((window.scrollY - section.offsetTop) / vh);
+      let idx = Math.round((getY() - section.offsetTop) / vh);
       idx = Math.max(0, Math.min(N - 1, idx));
       if (idx !== activeRef.current) {
         activeRef.current = idx;
@@ -80,14 +84,14 @@ export default function WorkCarousel() {
       }
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    (scrollEl || window).addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', layout);
     const t1 = setTimeout(layout, 60);
     const t2 = setTimeout(layout, 400);
     layout();
     onScroll();
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      (scrollEl || window).removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', layout);
       clearTimeout(t1); clearTimeout(t2);
     };
@@ -98,7 +102,8 @@ export default function WorkCarousel() {
     if (!section) return;
     const idx = Math.max(0, Math.min(N - 1, i));
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.scrollTo({ top: section.offsetTop + idx * window.innerHeight, behavior: reduce ? 'auto' : 'smooth' });
+    const scrollEl = document.getElementById('scrollRoot');
+    (scrollEl || window).scrollTo({ top: section.offsetTop + idx * window.innerHeight, behavior: reduce ? 'auto' : 'smooth' });
   };
 
   const arrowStyle = (disabled) => ({

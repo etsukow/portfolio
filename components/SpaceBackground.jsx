@@ -54,10 +54,12 @@ export default function SpaceBackground() {
       if (wh) wh.style.display = mobile ? 'none' : 'block';
     }
 
-    // ---- star / planet parallax ----
+    // ---- star / planet parallax (driven by the inner #scrollRoot) ----
+    const scrollEl = document.getElementById('scrollRoot');
+    const getY = () => (scrollEl ? scrollEl.scrollTop : (window.scrollY || window.pageYOffset || 0));
     let s1, s2, s3, pl;
     function onScroll() {
-      const y = window.scrollY || window.pageYOffset;
+      const y = getY();
       s1 = s1 || q('#stars1'); s2 = s2 || q('#stars2'); s3 = s3 || q('#stars3'); pl = pl || q('#planet');
       if (s1) s1.style.transform = `translate3d(0,${y * 0.12}px,0)`;
       if (s2) s2.style.transform = `translate3d(0,${y * 0.06}px,0)`;
@@ -65,13 +67,13 @@ export default function SpaceBackground() {
       if (pl) pl.style.transform = `translate3d(${y * -0.04}px,${y * -0.05}px,0)`;
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    (scrollEl || window).addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', layout);
     layout();
     onScroll();
 
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      (scrollEl || window).removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', layout);
     };
   }, []);

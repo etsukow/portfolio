@@ -17,6 +17,10 @@ export default function Tardis() {
     const cv = canvasRef.current;
     if (!cv) return;
 
+    // scroll is driven by the inner #scrollRoot container (falls back to window)
+    const scrollEl = document.getElementById('scrollRoot');
+    const getY = () => (scrollEl ? scrollEl.scrollTop : (window.scrollY || window.pageYOffset || 0));
+
     let renderer, scene, camera, group, model, lampLight, lampSprite, raf;
     let idleT = 0;
     let base = { x: 2.6, y: 0, z: 0, ry: 0.5, s: 1 };
@@ -136,7 +140,7 @@ export default function Tardis() {
 
     function update(y) {
       if (!group) return;
-      pageScroll = document.documentElement.scrollHeight - window.innerHeight || 1;
+      pageScroll = (scrollEl ? (scrollEl.scrollHeight - scrollEl.clientHeight) : (document.documentElement.scrollHeight - window.innerHeight)) || 1;
       const g = Math.max(0, Math.min(1, y / pageScroll));
       const n = waypoints.length - 1, seg = g * n, i = Math.min(n - 1, Math.floor(seg));
       let f = seg - i; f = f * f * (3 - 2 * f); // smoothstep
@@ -188,7 +192,7 @@ export default function Tardis() {
     const loader = new GLTFLoader();
     loader.load(
       '/tardis_exterior_2005.glb',
-      (gltf) => { if (!disposed) { placeModel(gltf); update(window.scrollY || 0); } },
+      (gltf) => { if (!disposed) { placeModel(gltf); update(getY()); } },
       undefined,
       (err) => console.warn('[tardis] GLB failed to load:', err)
     );
@@ -221,16 +225,16 @@ export default function Tardis() {
     };
     loop();
 
-    const onScroll = () => update(window.scrollY || window.pageYOffset || 0);
-    const onResize = () => { resize(); update(window.scrollY || 0); };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const onScroll = () => update(getY());
+    const onResize = () => { resize(); update(getY()); };
+    (scrollEl || window).addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
-    update(window.scrollY || 0);
+    update(getY());
 
     return () => {
       disposed = true;
       cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', onScroll);
+      (scrollEl || window).removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
       if (renderer) { renderer.dispose(); renderer = null; }
     };

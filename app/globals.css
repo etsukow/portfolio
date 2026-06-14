@@ -1,11 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 * { box-sizing: border-box; }
-/* Section scrolling: one step per gesture (mandatory), but no forced stop so
-   momentum stays smooth. `scroll-behavior: smooth` animates each snap. The WORK
-   section is tall with internal per-card snap points (see WorkCarousel), so a
-   scroll step advances one carousel card just like it advances one section. */
-html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+
+/* The document never scrolls — an inner #scrollRoot does — so iOS Safari can't
+   rubber-band the page and the fixed nav / 3D layers stay pinned. */
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+
+/* Section scrolling lives on the inner scroller: one step per gesture
+   (mandatory), smooth animation, and the WORK section's per-card snap points
+   make a scroll step advance one carousel card just like one section. */
+#scrollRoot {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;        /* hide the inner scrollbar (no ugly bar) */
+  -ms-overflow-style: none;
+}
+#scrollRoot::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 section[data-screen-label] {
   min-height: 100vh;        /* fallback */
@@ -25,10 +35,10 @@ section[data-screen-label] {
 }
 
 /* On phones the single-column content is taller than a screen, so fall back to
-   natural scrolling (proximity snap only governs the desktop experience). The
-   work carousel keeps working everywhere — it is driven by vertical scroll. */
+   natural scrolling (snap only governs the desktop experience). The work
+   carousel keeps working everywhere — it is driven by vertical scroll. */
 @media (max-width: 820px) {
-  html { scroll-snap-type: none; }
+  #scrollRoot { scroll-snap-type: none; }
   section[data-screen-label] { min-height: 0; }
   #about, #demo, #music, #contact { display: block; }
 }

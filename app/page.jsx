@@ -9,13 +9,15 @@ const serif = "'Instrument Serif',serif";
 
 export default function Page() {
   return (
-    <div style={{ position: 'relative', background: '#11111b', minHeight: '100vh', overflowX: 'clip' }}>
+    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', background: '#11111b' }}>
       <SpaceBackground />
       <Tardis />
       <div id="tardisScrim" aria-hidden="true" />
       <NavBar />
 
-      <div style={{ position: 'relative', zIndex: 2 }}>
+      {/* Inner scroll container — the document itself never scrolls, so iOS
+          can't rubber-band it and the fixed nav/3D layers stay rock-solid. */}
+      <div id="scrollRoot" style={{ position: 'absolute', inset: 0, zIndex: 2, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }}>
         {/* HERO */}
         <section id="top" data-screen-label="Hero" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', padding: '120px clamp(20px,6vw,90px) 80px', position: 'relative' }}>
           <div style={{ maxWidth: 760 }}>
