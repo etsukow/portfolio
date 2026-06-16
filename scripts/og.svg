@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="bg" cx="78%" cy="12%" r="110%">
+      <stop offset="0%" stop-color="#1b2348"/>
+      <stop offset="30%" stop-color="#161a33"/>
+      <stop offset="65%" stop-color="#11111b"/>
+      <stop offset="100%" stop-color="#0b0b13"/>
+    </radialGradient>
+    <radialGradient id="lamp" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#cfe3ff" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#89b4fa" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#89b4fa" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- a scatter of stars -->
+  <g fill="#cdd6f4">
+    <circle cx="120" cy="90" r="1.6" opacity="0.8"/>
+    <circle cx="320" cy="60" r="1.2" opacity="0.6"/>
+    <circle cx="520" cy="120" r="1.4" opacity="0.7"/>
+    <circle cx="900" cy="70" r="1.6" opacity="0.7"/>
+    <circle cx="1050" cy="160" r="1.2" opacity="0.6"/>
+    <circle cx="180" cy="520" r="1.4" opacity="0.6"/>
+    <circle cx="430" cy="560" r="1.2" opacity="0.5"/>
+    <circle cx="1120" cy="470" r="1.5" opacity="0.6"/>
+    <circle cx="80" cy="320" r="1.2" opacity="0.5"/>
+    <circle cx="640" cy="40" r="1.1" opacity="0.5"/>
+  </g>
+
+  <!-- TARDIS on the right, scaled from the favicon motif -->
+  <g transform="translate(905 150) scale(9)">
+    <circle cx="16" cy="4.2" r="6" fill="url(#lamp)"/>
+    <circle cx="16" cy="4.2" r="1.1" fill="#cfe3ff"/>
+    <rect x="14.4" y="4.8" width="3.2" height="1.3" rx="0.3" fill="#2a4f9e"/>
+    <rect x="12.4" y="5.8" width="7.2" height="1.4" rx="0.3" fill="#34619c"/>
+    <rect x="9.4"  y="7"   width="13.2" height="2" rx="0.4" fill="#2a4f9e"/>
+    <rect x="10.5" y="8.8" width="11" height="18" rx="0.6" fill="#3a6fd0"/>
+    <rect x="10.9" y="9.2" width="10.2" height="1.9" fill="#0c1a3a"/>
+    <rect x="12" y="11.8" width="8" height="3.8" fill="#bcd6ff"/>
+    <line x1="16" y1="11.8" x2="16" y2="15.6" stroke="#2a4f9e" stroke-width="0.7"/>
+    <line x1="12" y1="13.7" x2="20" y2="13.7" stroke="#2a4f9e" stroke-width="0.7"/>
+    <line x1="16" y1="15.8" x2="16" y2="26" stroke="#1c2f5c" stroke-width="0.7"/>
+    <rect x="10" y="25.6" width="12" height="1.5" rx="0.3" fill="#2a4f9e"/>
+  </g>
+
+  <!-- text block -->
+  <text x="90" y="250" font-family="Menlo, monospace" font-size="22" letter-spacing="5" fill="#94e2d5">JULIEN EVRARD · DATA / AI ENGINEER</text>
+  <text x="86" y="360" font-family="Georgia, 'Times New Roman', serif" font-size="92" fill="#cdd6f4">Bigger on</text>
+  <text x="86" y="460" font-family="Georgia, 'Times New Roman', serif" font-size="92" fill="#cdd6f4">the <tspan font-style="italic" fill="#89b4fa">inside.</tspan></text>
+  <text x="90" y="560" font-family="Menlo, monospace" font-size="24" fill="#6c7086">etsukow.com</text>
+</svg>
