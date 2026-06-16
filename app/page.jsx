@@ -142,7 +142,13 @@ export default function Page() {
             Not on the market for opportunities — but always up for a chat about 3DS homebrew, models, or where the next season is going.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, justifyContent: 'center' }}>
-            <a href="mailto:julien.evrard@icloud.com" className="hov-bg-cyan" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '15px 28px', borderRadius: 999, background: '#89b4fa', color: '#11111b', fontWeight: 600, fontSize: 15 }}>✉ julien.evrard@icloud.com</a>
+            <a href="mailto:julien.evrard@icloud.com" className="hov-bg-cyan" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '15px 28px', borderRadius: 999, background: '#89b4fa', color: '#11111b', fontWeight: 600, fontSize: 15 }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
+              julien.evrard@icloud.com
+            </a>
             <a href="https://github.com/etsukow" target="_blank" rel="noopener" className="hov-pill-mauve" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '15px 28px', borderRadius: 999, border: '1px solid #45475a', color: '#cdd6f4', fontSize: 15 }}>GitHub ↗</a>
             <a href="https://www.linkedin.com/in/evrard-julien" target="_blank" rel="noopener" className="hov-pill-cyan" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '15px 28px', borderRadius: 999, border: '1px solid #45475a', color: '#cdd6f4', fontSize: 15 }}>LinkedIn ↗</a>
           </div>
