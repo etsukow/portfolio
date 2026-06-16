@@ -5,8 +5,8 @@ import Demo from '@/components/Demo';
 import WorkCarousel from '@/components/WorkCarousel';
 import NowPlaying from '@/components/NowPlaying';
 
-const mono = "'JetBrains Mono',monospace";
-const serif = "'Instrument Serif',serif";
+const mono = 'var(--font-mono), monospace';
+const serif = 'var(--font-serif), serif';
 
 export default function Page() {
   return (

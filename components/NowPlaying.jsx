@@ -18,7 +18,7 @@ const LASTFM_USER = process.env.NEXT_PUBLIC_LASTFM_USER || '';
 const LASTFM_KEY = process.env.NEXT_PUBLIC_LASTFM_API_KEY || '';
 const POLL_MS = 20000;
 
-const mono = "'JetBrains Mono',monospace";
+const mono = 'var(--font-mono), monospace';
 
 export default function NowPlaying() {
   const [track, setTrack] = useState(null);

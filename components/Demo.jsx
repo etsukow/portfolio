@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const mono = "'JetBrains Mono',monospace";
+const mono = 'var(--font-mono), monospace';
 
 const gamesData = [
   { id: 'mk7', title: 'Mario Kart 7', detail: 'Rainbow Road · 1st place', c1: '#f38ba8', c2: '#eba0ac' },
@@ -50,7 +50,7 @@ export default function Demo() {
   return (
     <section id="demo" data-screen-label="Live demo" style={{ padding: 'clamp(40px,7vh,90px) clamp(20px,6vw,90px)', maxWidth: 1180, margin: '0 auto' }}>
       <div style={{ fontFamily: mono, fontSize: 12, letterSpacing: '.24em', color: '#74c7ec', textTransform: 'uppercase', marginBottom: 18 }}>03 — live demo</div>
-      <h2 style={{ fontFamily: "'Instrument Serif',serif", fontWeight: 400, fontSize: 'clamp(32px,5vw,58px)', margin: '0 0 14px', color: '#cdd6f4', lineHeight: 1.05 }}>
+      <h2 style={{ fontFamily: 'var(--font-serif), serif', fontWeight: 400, fontSize: 'clamp(32px,5vw,58px)', margin: '0 0 14px', color: '#cdd6f4', lineHeight: 1.05 }}>
         Pick a game. Watch Discord <span style={{ fontStyle: 'italic', color: '#89b4fa' }}>light up.</span>
       </h2>
       <p style={{ fontSize: 16, lineHeight: 1.65, color: '#a6adc8', maxWidth: 600, margin: '0 0 44px' }}>
@@ -61,19 +61,26 @@ export default function Demo() {
         {/* 3DS — real device render from the original portfolio, screens are live */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
           <div style={{ position: 'relative', width: 'min(400px,88vw)' }}>
-            <img
-              src="/3ds-open.png"
-              alt="New Nintendo 3DS"
-              draggable={false}
-              style={{ display: 'block', width: '100%', height: 'auto', filter: 'drop-shadow(0 26px 46px rgba(0,0,0,.55))' }}
-            />
+            <picture>
+              <source srcSet="/3ds-open.webp" type="image/webp" />
+              <img
+                src="/3ds-open.png"
+                alt="New Nintendo 3DS"
+                width={1100}
+                height={1160}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                style={{ display: 'block', width: '100%', height: 'auto', filter: 'drop-shadow(0 26px 46px rgba(0,0,0,.55))' }}
+              />
+            </picture>
 
             {/* TOP screen — now playing */}
             <div style={{ position: 'absolute', left: '20.1%', top: '11.8%', width: '59.7%', height: '34.7%', overflow: 'hidden', borderRadius: 5, background: '#0e1018', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ position: 'absolute', inset: 0, opacity: 0.55, background: art(current) }} />
               <div style={{ position: 'relative', textAlign: 'center', padding: '0 10%' }}>
                 <div style={{ fontFamily: mono, fontSize: 8.5, letterSpacing: '.2em', color: '#cfe0ff', marginBottom: 6, opacity: 0.85 }}>NOW PLAYING</div>
-                <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 19, color: '#fff', lineHeight: 1.1, textShadow: '0 2px 10px rgba(0,0,0,.75)' }}>{current.title}</div>
+                <div style={{ fontFamily: 'var(--font-serif), serif', fontSize: 19, color: '#fff', lineHeight: 1.1, textShadow: '0 2px 10px rgba(0,0,0,.75)' }}>{current.title}</div>
               </div>
             </div>
 

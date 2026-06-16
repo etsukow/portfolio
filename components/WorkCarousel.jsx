@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import LiveSiteDemo from './LiveSiteDemo';
 
-const mono = "'JetBrains Mono',monospace";
-const serif = "'Instrument Serif',serif";
+const mono = 'var(--font-mono), monospace';
+const serif = 'var(--font-serif), serif';
 const CARD_W = 'min(520px, 84vw)';
 const CARD_H = 'min(470px, 72vh)';
 const EASE = 'transform .55s cubic-bezier(.4,0,.2,1)';

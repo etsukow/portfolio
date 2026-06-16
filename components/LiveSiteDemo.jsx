@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-const mono = "'JetBrains Mono',monospace";
+const mono = 'var(--font-mono), monospace';
 
 /**
  * "Live demo" for a project that is a deployed website: a button that opens a

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-const mono = "'JetBrains Mono',monospace";
+const mono = 'var(--font-mono), monospace';
 
 export default function NavBar() {
   const [open, setOpen] = useState(false);
@@ -54,10 +54,10 @@ export default function NavBar() {
           backdropFilter: 'blur(6px)', display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', gap: 30,
         }}>
-          <a href="#about" onClick={() => setOpen(false)} style={{ fontFamily: "'Instrument Serif',serif", fontSize: 34, color: '#cdd6f4' }}>About</a>
-          <a href="#work" onClick={() => setOpen(false)} style={{ fontFamily: "'Instrument Serif',serif", fontSize: 34, color: '#cdd6f4' }}>Work</a>
-          <a href="#music" onClick={() => setOpen(false)} style={{ fontFamily: "'Instrument Serif',serif", fontSize: 34, color: '#cdd6f4' }}>Off the clock</a>
-          <a href="#contact" onClick={() => setOpen(false)} style={{ fontFamily: "'Instrument Serif',serif", fontSize: 34, color: '#89b4fa' }}>Send a signal</a>
+          <a href="#about" onClick={() => setOpen(false)} style={{ fontFamily: 'var(--font-serif), serif', fontSize: 34, color: '#cdd6f4' }}>About</a>
+          <a href="#work" onClick={() => setOpen(false)} style={{ fontFamily: 'var(--font-serif), serif', fontSize: 34, color: '#cdd6f4' }}>Work</a>
+          <a href="#music" onClick={() => setOpen(false)} style={{ fontFamily: 'var(--font-serif), serif', fontSize: 34, color: '#cdd6f4' }}>Off the clock</a>
+          <a href="#contact" onClick={() => setOpen(false)} style={{ fontFamily: 'var(--font-serif), serif', fontSize: 34, color: '#89b4fa' }}>Send a signal</a>
           <span onClick={() => setOpen(false)} style={{ position: 'absolute', top: 24, right: 28, fontFamily: mono, fontSize: 13, color: '#6c7086', cursor: 'pointer' }}>[ close ]</span>
         </div>
       )}

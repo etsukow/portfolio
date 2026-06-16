@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 /**
  * The travelling TARDIS — the real `tardis_exterior_2005.glb` model, driven
@@ -21,6 +19,10 @@ export default function Tardis() {
     const scrollEl = document.getElementById('scrollRoot');
     const getY = () => (scrollEl ? scrollEl.scrollTop : (window.scrollY || window.pageYOffset || 0));
 
+    // Three.js is loaded lazily and the whole scene is spun up only once the
+    // browser is idle — keeping the ~190 KB engine off the critical hydration
+    // path so first paint / interactivity aren't blocked by it.
+    let THREE, GLTFLoader, idleHandle, onScroll, onResize;
     let renderer, scene, camera, group, model, lampLight, lampSprite, raf;
     let idleT = 0;
     let base = { x: 2.6, y: 0, z: 0, ry: 0.5, s: 1 };
@@ -41,8 +43,7 @@ export default function Tardis() {
 
     // readability scrim: a soft dark+blur halo that tracks the TARDIS's
     // on-screen position so text passing over it stays legible
-    const projC = new THREE.Vector3();
-    const projT = new THREE.Vector3();
+    let projC, projT;
     const rootStyle = document.documentElement.style;
     function updateScrim() {
       if (!camera || !group) return;
@@ -168,7 +169,16 @@ export default function Tardis() {
       tFactor = w < 820 ? { x: 0.42, s: 0.62 } : { x: 1, s: 1 };
     }
 
-    // ---- init ----
+    // ---- init (deferred + lazy-loaded) ----
+    const start = async () => {
+      if (disposed) return;
+      THREE = await import('three');
+      ({ GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js'));
+      if (disposed) return;
+
+      projC = new THREE.Vector3();
+      projT = new THREE.Vector3();
+
     const w = window.innerWidth, h = window.innerHeight;
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(42, w / h, 0.1, 100);
@@ -247,17 +257,29 @@ export default function Tardis() {
     };
     loop();
 
-    const onScroll = () => update(getY());
-    const onResize = () => { resize(); update(getY()); };
+    onScroll = () => update(getY());
+    onResize = () => { resize(); update(getY()); };
     (scrollEl || window).addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
     update(getY());
+    }; // end start()
+
+    // kick off when the browser is idle (fallback: a short timeout)
+    if ('requestIdleCallback' in window) {
+      idleHandle = window.requestIdleCallback(start, { timeout: 1500 });
+    } else {
+      idleHandle = window.setTimeout(start, 200);
+    }
 
     return () => {
       disposed = true;
+      if (idleHandle != null) {
+        if ('cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle);
+        clearTimeout(idleHandle);
+      }
       cancelAnimationFrame(raf);
-      (scrollEl || window).removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
+      if (onScroll) (scrollEl || window).removeEventListener('scroll', onScroll);
+      if (onResize) window.removeEventListener('resize', onResize);
       if (renderer) { renderer.dispose(); renderer = null; }
     };
   }, []);
