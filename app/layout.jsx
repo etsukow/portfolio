@@ -58,7 +58,7 @@ export const metadata = {
     title: 'Julien Evrard — Bigger on the inside.',
     description: DESCRIPTION,
     images: [
-      { url: '/og.png', width: 1200, height: 630, alt: 'Julien Evrard — Bigger on the inside.' },
+      { url: '/og.png', width: 2400, height: 1260, alt: 'Julien Evrard — Bigger on the inside.' },
     ],
   },
   twitter: {
